@@ -47,7 +47,7 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     var fetchResultsController: NSFetchedResultsController?
     var metadataQuery: NSMetadataQuery?
     var documents: NSMutableArray?
-    
+    var stack: PersistentStack!
     var coverView: UIView?{
         didSet
         {
@@ -322,19 +322,17 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         }
         
     }
-    
-    
+        
     func insertItem(aString:String?)
     {
         if aString == nil {return}
         
         messageLabel?.text = aString
         stopRuning()
-        var scanItem: ScanItem? =  ScanItem.insertShopIncomeItem(nil, inManagedObjectContext: managedObjectContext)
-       
+        var scanItem: ScanItem? =  ScanItem.insertShopIncomeItem(nil, inManagedObjectContext: stack.managedContext)
         scanItem?.scanDate = dateFormatter?.stringFromDate(NSDate())
         scanItem?.scanDetail = aString
-        
+        stack.managedContext.save(nil)
         
         addDocument()
 
@@ -366,7 +364,7 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         var newTxtName: String?
         var done = false
         
-        let documentArr = NSArray(array: documents!)
+        let documentArr = NSArray(array: documents ?? [])
         
         while !done
         {

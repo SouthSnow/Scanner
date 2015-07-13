@@ -28,9 +28,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
 //        rootVC.managedObjectContext = persistentStack?.managedContext
 //        rootVC.fetchResultsController = store?.getFetchResultsControllers()
         Fabric.with([Crashlytics()])
-        rootVC.managedObjectContext = self.managedObjectContext
-        rootVC.fetchResultsController = self.fetchResultsController
-        
+//        rootVC.managedObjectContext = stack.managedContext//self.managedObjectContext
+//        rootVC.fetchResultsController = stack.fetchedResultsController//self.fetchResultsController
+        rootVC.stack = self.stack
 //        registerForiCloudNotifications()
 //        registerNotifications()
         
@@ -38,6 +38,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
         
         return true
     }
+    
+    
+
+    lazy var stack: PersistentStack = {
+        let stack = PersistentStack(storeName: "db", modelName: "ScanItems", options: self.storeOptions)
+        return stack;
+        }()
+    
     
     func storeURL()->(NSURL,NSURL)
     {
@@ -139,7 +147,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
         let url = self.applicationDocumentsDirectory.URLByAppendingPathComponent("db.sqlite")
         var error: NSError? = nil
         var failureReason = "There was an error creating or loading the application's saved data."
-        if coordinator!.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: url, options: nil, error: &error) == nil {
+        if coordinator!.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: url, options: self.storeOptions, error: &error) == nil {
             coordinator = nil
             // Report any error we got.
             var dict = [String: AnyObject]()
@@ -184,7 +192,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
 
             NSMigratePersistentStoresAutomaticallyOption:true,
             NSInferMappingModelAutomaticallyOption: true,
-            NSPersistentStoreUbiquitousContentNameKey : "ScanItems",
+            NSPersistentStoreUbiquitousContentNameKey : "db",
             NSPersistentStoreUbiquitousPeerTokenOption: "c405d8e8a24s11e3bbec425861s862bs"]
         
     }()

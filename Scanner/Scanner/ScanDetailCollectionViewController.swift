@@ -14,37 +14,29 @@ class ScanDetailCollectionViewController: UICollectionViewController, MKMasonryV
 
     var fetchResultsController: NSFetchedResultsController?
     var managedObjectContext: NSManagedObjectContext?
+    var stack: PersistentStack!
 
+    
     var cellCount:Int = 10
 
     var appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
     
-    var persistentStoreCoordinatorChangesObserver:NSNotificationCenter? {
-        didSet {
-            
-            oldValue?.removeObserver(self, name: NSPersistentStoreCoordinatorStoresDidChangeNotification, object: appDelegate.persistentStoreCoordinator)
-            oldValue?.removeObserver(self, name: NSPersistentStoreCoordinatorStoresWillChangeNotification, object: appDelegate.persistentStoreCoordinator)
-            persistentStoreCoordinatorChangesObserver?.addObserver(self, selector: "persistentStoreCoordinatorStoresDidChange:", name: NSPersistentStoreCoordinatorStoresDidChangeNotification, object: appDelegate.persistentStoreCoordinator)
-            persistentStoreCoordinatorChangesObserver?.addObserver(self, selector: "persistentStoreCoordinatorStoresWillChange:", name: NSPersistentStoreCoordinatorStoresWillChangeNotification, object: appDelegate.persistentStoreCoordinator)
-            
-        }
-        
-    }
-    
-    
     override func viewDidLoad() {
         super.viewDidLoad()
+        stack = appDelegate.stack
 
-        appDelegate.registerForiCloudNotifications()
-        self.fetchResultsController = appDelegate.fetchResultsController
-        self.managedObjectContext = appDelegate.managedObjectContext
-        persistentStoreCoordinatorChangesObserver = NSNotificationCenter.defaultCenter()
+        self.stack.updateContextWithUbiquitousContentUpdates = true
+  
+        managedObjectContext = stack.managedContext
+        fetchResultsController = stack.fetchedResultsController
+        fetchResultsController?.delegate = self
         
         self.collectionView!.registerClass(ScanCollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
       
         self.collectionView?.backgroundColor = UIColor.whiteColor()
-        fetchResultsController?.delegate = self
-        
+       
+        var error: NSError?
+        fetchResultsController?.performFetch(&error)
        
 //        var longGesture = UILongPressGestureRecognizer(target: self, action: "handleLongPress:")
 //        self.collectionView?.addGestureRecognizer(longGesture)
@@ -55,33 +47,14 @@ class ScanDetailCollectionViewController: UICollectionViewController, MKMasonryV
     
     }
     
-    func persistentStoreCoordinatorStoresWillChange(notification: NSNotification) {
-        
-        var error: NSErrorPointer = nil
-        if appDelegate.managedObjectContext!.hasChanges {
-            if !appDelegate.managedObjectContext!.save(error) {
-                
-            }
-        }
-        
-    }
-    
-    func persistentStoreCoordinatorStoresDidChange(notification: NSNotification) {
-        
-        var error: NSError?
-        fetchResultsController?.performFetch(&error)
-    }
-    
-    
-    
-
-
     override func numberOfSectionsInCollectionView(collectionView: UICollectionView) -> Int {
      
         
         if let sections = fetchResultsController?.sections
         {
+            
             return  fetchResultsController!.sections!.count
+            
         }
         return 0
     }
@@ -89,8 +62,6 @@ class ScanDetailCollectionViewController: UICollectionViewController, MKMasonryV
 
     override func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
       
-
-        
         if let sections = fetchResultsController?.sections
         {
             let sectionInfo: AnyObject =  sections[section]
@@ -140,6 +111,10 @@ class ScanDetailCollectionViewController: UICollectionViewController, MKMasonryV
     {
         
         let dragLayout = self.collectionView?.collectionViewLayout as! ScanViewLayout
+        if  self.collectionView == nil
+        {
+            return
+        }
         var point = panGesture.translationInView(self.collectionView!)
         var locationPoint = panGesture.locationInView(self.collectionView!)
         var indexpath: NSIndexPath? = self.collectionView!.indexPathForItemAtPoint(locationPoint)

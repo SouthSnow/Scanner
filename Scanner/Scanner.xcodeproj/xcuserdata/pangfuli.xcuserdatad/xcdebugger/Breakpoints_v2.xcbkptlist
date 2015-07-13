@@ -6,16 +6,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "No"
+            shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Scanner/ScanDetailTableViewController.swift"
-            timestampString = "455032245.156909"
+            filePath = "Scanner/PersistentStack.m"
+            timestampString = "458492481.138823"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "41"
-            endingLineNumber = "41"
-            landmarkName = "tableView(_:numberOfRowsInSection:)"
+            startingLineNumber = "100"
+            endingLineNumber = "100"
+            landmarkName = "-persistentStoreDidImportUbiquitousContentChange:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

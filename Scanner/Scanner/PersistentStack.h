@@ -11,10 +11,10 @@
 
 @interface PersistentStack : NSObject
 @property (nonatomic, strong, readonly) NSManagedObjectContext *managedContext;
-@property (nonatomic, strong) NSURL *modelURL;
-@property (nonatomic, strong) NSURL *storeURL;
+@property (nonatomic, copy) NSString *modelName;
+@property (nonatomic, copy) NSString *storeName;
 @property (nonatomic, strong) NSDictionary *options;
 @property (nonatomic, strong, readonly) NSFetchedResultsController *fetchedResultsController;
-
-- (id)initWithStoreURL:(NSURL*)storeURL modelURL:(NSURL*)modelURL options:(NSDictionary*)options;
+@property (nonatomic, assign) BOOL updateContextWithUbiquitousContentUpdates;
+- (id)initWithStoreName:(NSString *)storeName modelName:(NSString *)modeName options:(NSDictionary*)options;
 @end

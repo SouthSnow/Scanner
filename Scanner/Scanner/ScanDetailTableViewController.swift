@@ -13,20 +13,53 @@ class ScanDetailTableViewController: UITableViewController {
     var fetchResultsController: NSFetchedResultsController?
     var managedObjectContext: NSManagedObjectContext?
      var appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+    var stack: PersistentStack!
+
+    
+    var persistentStoreCoordinatorChangesObserver:NSNotificationCenter? {
+        didSet {
+            
+            oldValue?.removeObserver(self, name: NSPersistentStoreCoordinatorStoresDidChangeNotification, object: self.stack.managedContext.persistentStoreCoordinator)
+            oldValue?.removeObserver(self, name: NSPersistentStoreCoordinatorStoresWillChangeNotification, object: self.stack.managedContext.persistentStoreCoordinator)
+            
+            persistentStoreCoordinatorChangesObserver?.addObserver(self, selector: "persistentStoreCoordinatorStoresWillChange:", name: NSPersistentStoreCoordinatorStoresWillChangeNotification, object: self.stack.managedContext.persistentStoreCoordinator)
+            persistentStoreCoordinatorChangesObserver?.addObserver(self, selector: "persistentStoreCoordinatorStoresDidChange:", name: NSPersistentStoreCoordinatorStoresDidChangeNotification, object: self.stack.managedContext.persistentStoreCoordinator)
+        }
+        
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-       
-        fetchResultsController = appDelegate.fetchResultsController
-        managedObjectContext = appDelegate.managedObjectContext
-        
         tableView.registerClass(ScanTableViewCell.self, forCellReuseIdentifier: "reuseIdentifier")
+        stack = appDelegate.stack
+        stack.updateContextWithUbiquitousContentUpdates = true
+        persistentStoreCoordinatorChangesObserver = NSNotificationCenter.defaultCenter()
+        fetchResultsController = stack.fetchedResultsController
         fetchResultsController?.delegate = self
+        managedObjectContext = stack.managedContext
         var error: NSError?
         fetchResultsController?.performFetch(&error)
         tableView.reloadData()
     }
 
+    
+    
+    func persistentStoreCoordinatorStoresWillChange(notification: NSNotification) {
+        
+        var error: NSErrorPointer = nil
+        if self.stack.managedContext.hasChanges {
+            if !self.stack.managedContext.save(error) {
+                
+            }
+        }
+        
+    }
+    
+    func persistentStoreCoordinatorStoresDidChange(notification: NSNotification) {
+        
+        var error: NSError?
+        fetchResultsController?.performFetch(&error)
+    }
  
 
     // MARK: - Table view data source

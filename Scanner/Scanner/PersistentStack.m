@@ -9,17 +9,17 @@
 #import "PersistentStack.h"
 @interface PersistentStack ()
 @property (nonatomic, strong, readwrite) NSManagedObjectContext *managedContext;
-
+@property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
 
 @end
 
 @implementation PersistentStack
 
-- (id)initWithStoreURL:(NSURL *)storeURL modelURL:(NSURL *)modelURL options:(NSDictionary*)options
+- (id)initWithStoreName:(NSString *)storeName modelName:(NSString *)modelName options:(NSDictionary*)options
 {
     if (self = [super init]) {
-        _modelURL = modelURL;
-        _storeURL = storeURL;
+        _modelName = modelName;
+        _storeName = storeName;
         _options = options;
         [self setupManagedObjectContext];
     
@@ -46,13 +46,24 @@
     
 }
 
+- (NSURL*)storeURL
+{
+    NSURL *url = [[NSFileManager defaultManager]URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask].lastObject;
+    url = [url URLByAppendingPathComponent:[NSString stringWithFormat:@"%@.sqlite",self.storeName]];
+    return url;
+}
 
 - (NSManagedObjectModel*)managedObjectModel
 {
     return [[NSManagedObjectModel alloc]initWithContentsOfURL:self.modelURL];
 }
 
-- (NSFetchedResultsController*)fetchResultsController
+- (NSURL*)modelURL
+{
+    return [[NSBundle mainBundle]URLForResource:self.modelName withExtension:@"momd"];
+}
+
+- (NSFetchedResultsController*)fetchedResultsController
 {
     NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:[self.class entityName]];
     fetchRequest.predicate = [NSPredicate predicateWithValue:YES];
@@ -68,4 +79,36 @@
 }
 
 
+- (void)setUpdateContextWithUbiquitousContentUpdates:(BOOL)updateContextWithUbiquitousContentUpdates
+{
+    _updateContextWithUbiquitousContentUpdates = updateContextWithUbiquitousContentUpdates;
+    if (updateContextWithUbiquitousContentUpdates) {
+        [self registerForiCloudNotification];
+    }
+}
+
+- (void)registerForiCloudNotification
+{
+    [[NSNotificationCenter defaultCenter]removeObserver:self name:NSPersistentStoreDidImportUbiquitousContentChangesNotification object:self.managedContext.persistentStoreCoordinator];
+    
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(persistentStoreDidImportUbiquitousContentChange:) name:NSPersistentStoreDidImportUbiquitousContentChangesNotification object:self.managedContext.persistentStoreCoordinator];
+}
+
+- (void)persistentStoreDidImportUbiquitousContentChange:(NSNotification*)notification
+{
+    [self.managedContext performBlock:^{
+       
+        [self.managedContext mergeChangesFromContextDidSaveNotification:notification];
+        NSLog(@"mergeChangesFromContextDidSaveNotification");
+    }];
+}
+
 @end
+
+
+
+
+
+
+
+
