@@ -10,9 +10,11 @@
 #import <CoreData/CoreData.h>
 
 @interface PersistentStack : NSObject
-
-- (id)initWithStoreURL:(NSURL*)storeURL modelURL:(NSURL*)modelURL;
 @property (nonatomic, strong, readonly) NSManagedObjectContext *managedContext;
+@property (nonatomic, strong) NSURL *modelURL;
+@property (nonatomic, strong) NSURL *storeURL;
+@property (nonatomic, strong) NSDictionary *options;
+@property (nonatomic, strong, readonly) NSFetchedResultsController *fetchedResultsController;
 
-
+- (id)initWithStoreURL:(NSURL*)storeURL modelURL:(NSURL*)modelURL options:(NSDictionary*)options;
 @end
