@@ -15,8 +15,8 @@ protocol MKMasonryViewLayoutDelegate
 
 class ScanViewLayout: UICollectionViewLayout {
    
-    private var lastYValueForColumn = Dictionary<Int,AnyObject>?()//NSMutableDictionary?
-    private var layoutInfo = Dictionary<NSObject,AnyObject>?()
+    private var lastYValueForColumn = Dictionary<Int,AnyObject>()
+    private var layoutInfo = Dictionary<NSObject,AnyObject>()
     private var indexPath: NSIndexPath?
     private var animator: UIDynamicAnimator?
     private var behavior: UIAttachmentBehavior?
@@ -32,17 +32,8 @@ class ScanViewLayout: UICollectionViewLayout {
         
         super.prepareLayout()
         
-        layoutInfo = [0:0]
-        lastYValueForColumn = [0:0]
-        
-        for indexPath in lastYValueForColumn!.keys
-        {
-//            lastYValueForColumn?.setObject(NSNumber(double: 0), forKey: indexPath)
-//            lastYValueForColumn?.updateValue(0, forKey: indexPath)
-            lastYValueForColumn![indexPath] = 0
-        }
-        
-        
+        lastYValueForColumn = [:]
+        layoutInfo  = [:]
         numberOfColumn = 1
         interItemSpacing = 0
         var currentColumn: Int = 0
@@ -69,7 +60,7 @@ class ScanViewLayout: UICollectionViewLayout {
                         
                         var y: CGFloat = 0
                         
-                        if let obj: AnyObject = lastYValueForColumn![currentColumn]//lastYValueForColumn!.objectForKey(NSNumber(integer: currentColumn))
+                        if let obj: AnyObject = lastYValueForColumn[currentColumn]
                         {
                             y = CGFloat(obj as! NSNumber)
                         }
@@ -80,18 +71,13 @@ class ScanViewLayout: UICollectionViewLayout {
                         y += height
                         y += interItemSpacing
                         
-//                        lastYValueForColumn?.setObject(NSNumber(double: Double(y)), forKey: NSNumber(integer: currentColumn))
-//                        lastYValueForColumn?.updateValue(y, forKey: currentColumn)
-                        lastYValueForColumn![currentColumn] = y
+                        lastYValueForColumn[currentColumn] = y
                         currentColumn++
                         if currentColumn == numberOfColumn
                         {
                             currentColumn = 0
                         }
-                        
-//                        layoutInfo?.setObject(itemAttributes, forKey: indexPath)
-//                        layoutInfo?.updateValue(itemAttributes, forKey: indexPath)
-                            layoutInfo![indexPath] = itemAttributes
+                        layoutInfo[indexPath] = itemAttributes
                     }
                 }
                 
@@ -104,10 +90,10 @@ class ScanViewLayout: UICollectionViewLayout {
         
         var currentColumn = 0
         var maxHeight: CGFloat = 0
-        do{
+        do {
             var height: CGFloat = 0
             
-            if let culumnHeight: AnyObject = lastYValueForColumn![currentColumn]
+            if let culumnHeight: AnyObject = lastYValueForColumn[currentColumn]
             {
                 height = CGFloat(culumnHeight.doubleValue)
             }
@@ -119,7 +105,7 @@ class ScanViewLayout: UICollectionViewLayout {
             }
             currentColumn++
         
-        }while(currentColumn < numberOfColumn)
+        } while (currentColumn < numberOfColumn)
         
         return CGSizeMake(self.collectionView!.bounds.width, maxHeight)
     }
@@ -127,27 +113,8 @@ class ScanViewLayout: UICollectionViewLayout {
     override func layoutAttributesForElementsInRect(rect: CGRect) -> [AnyObject]? {
         
      
-            var allAttributes = NSMutableArray(capacity: self.layoutInfo!.count)
+            var allAttributes = NSMutableArray(capacity: self.layoutInfo.count)
 
-//            self.layoutInfo?.enumerateKeysAndObjectsUsingBlock({(indexPath, attributes, stop) -> Void in
-//                
-//                if CGRectIntersectsRect(rect, (attributes as! UICollectionViewLayoutAttributes).frame)
-//                {
-//                    if let selectIndexPath = self.indexPath
-//                    {
-//                        if self.indexPath!.isEqual(indexPath as AnyObject) == false
-//                        {
-//                            allAttributes.addObject(attributes)
-//                        }
-//                    }
-//                    else
-//                    {
-//                        allAttributes.addObject(attributes)
-//                    }
-//                }
-//            })
-        
-        if let layoutInfo = self.layoutInfo {
             for (indexPath,attributes) in layoutInfo {
                 if CGRectIntersectsRect(rect, attributes.frame) {
                     if let selectIndexPath = self.indexPath {
@@ -160,8 +127,6 @@ class ScanViewLayout: UICollectionViewLayout {
                     }
                 }
             }
-        }
-        
         
            if let selectIndexPath = self.indexPath
            {
@@ -243,7 +208,7 @@ class ScanViewLayout: UICollectionViewLayout {
     func stopDrag()
     {
         isDrag = false
-        var attributes = self.layoutInfo![indexPath!] as! UICollectionViewLayoutAttributes
+        var attributes = self.layoutInfo[indexPath!] as! UICollectionViewLayoutAttributes
         updateDragLocation(attributes.center)
         self.indexPath = nil
         self.behavior = nil
@@ -257,7 +222,7 @@ class ScanViewLayout: UICollectionViewLayout {
         
         self.indexPath = indexPath
         self.animator = UIDynamicAnimator(collectionViewLayout: self)
-        var attributes = self.layoutInfo![indexPath] as! UICollectionViewLayoutAttributes
+        var attributes = self.layoutInfo[indexPath] as! UICollectionViewLayoutAttributes
         attributes.zIndex += 1
 
         self.behavior = UIAttachmentBehavior(item: attributes, attachedToAnchor: point)
@@ -277,13 +242,6 @@ class ScanViewLayout: UICollectionViewLayout {
 }
 
 
-//extension Int: NSCopying {
-//    
-//    func public copyWithZone(zone: NSZone) -> AnyObject {
-//        return 2
-//    }
-//    
-//}
 
 
 

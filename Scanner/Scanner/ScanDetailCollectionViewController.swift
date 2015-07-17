@@ -44,15 +44,23 @@ class ScanDetailCollectionViewController: UICollectionViewController, MKMasonryV
         self.collectionView?.addGestureRecognizer(panGesture)
         panGesture.delegate = self
         
+        
+    }
+    
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
         registerNotification()
+    }
+    
+    override func viewDidDisappear(animated: Bool) {
+        super.viewDidDisappear(animated)
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: NSPersistentStoreCoordinatorStoresWillChangeNotification, object: stack.managedContext.persistentStoreCoordinator)
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: NSPersistentStoreCoordinatorStoresDidChangeNotification, object: stack.managedContext.persistentStoreCoordinator)
     }
     
     func registerNotification()
     {
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: NSPersistentStoreCoordinatorStoresWillChangeNotification, object: stack.managedContext.persistentStoreCoordinator)
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: NSPersistentStoreCoordinatorStoresDidChangeNotification, object: stack.managedContext.persistentStoreCoordinator)
-        
-        
+      
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "persistentStoreCoordinatorStoresWillChange:", name: NSPersistentStoreCoordinatorStoresWillChangeNotification, object: stack.managedContext.persistentStoreCoordinator)
         
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "persistentStoreCoordinatorStoresDidChange:", name: NSPersistentStoreCoordinatorStoresDidChangeNotification, object: stack.managedContext.persistentStoreCoordinator)
