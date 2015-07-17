@@ -31,6 +31,7 @@ class ScanDetailTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.registerClass(ScanTableViewCell.self, forCellReuseIdentifier: "reuseIdentifier")
+        tableView.rowHeight = 60
         stack = appDelegate.stack
         stack.updateContextWithUbiquitousContentUpdates = true
         persistentStoreCoordinatorChangesObserver = NSNotificationCenter.defaultCenter()
@@ -95,11 +96,6 @@ class ScanDetailTableViewController: UITableViewController {
         cell.scanDateLabel.text = scanItem.scanDate
 
         return cell
-    }
-
-
-    override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
-        return 60
     }
 
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath){

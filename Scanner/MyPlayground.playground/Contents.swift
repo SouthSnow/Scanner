@@ -58,7 +58,15 @@ func combinationFucntion(x: Int?,f:(Int?, Int?)->Int?)->Int?
 combinationFucntion(3, addOptional2)
 
 
-
+let aString: String = "helloSwift"
+let end = aString.endIndex
+let start = aString.startIndex
+let successor = start.successor()
+let predecessor = successor.predecessor()
+let next = successor.successor()
+let subString = aString.substringToIndex(advance(start, 6))
+let subString2 = aString.substringFromIndex(advance(start, 7))
+let sunString3 = aString.substringWithRange(Range(start: advance(start, 2), end: advance(start, 7)))
 
 
 

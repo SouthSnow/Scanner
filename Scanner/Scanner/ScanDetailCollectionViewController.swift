@@ -44,7 +44,39 @@ class ScanDetailCollectionViewController: UICollectionViewController, MKMasonryV
         self.collectionView?.addGestureRecognizer(panGesture)
         panGesture.delegate = self
         
+        registerNotification()
+    }
     
+    func registerNotification()
+    {
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: NSPersistentStoreCoordinatorStoresWillChangeNotification, object: stack.managedContext.persistentStoreCoordinator)
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: NSPersistentStoreCoordinatorStoresDidChangeNotification, object: stack.managedContext.persistentStoreCoordinator)
+        
+        
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "persistentStoreCoordinatorStoresWillChange:", name: NSPersistentStoreCoordinatorStoresWillChangeNotification, object: stack.managedContext.persistentStoreCoordinator)
+        
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "persistentStoreCoordinatorStoresDidChange:", name: NSPersistentStoreCoordinatorStoresDidChangeNotification, object: stack.managedContext.persistentStoreCoordinator)
+        
+    }
+    
+    func persistentStoreCoordinatorStoresWillChange(notification: NSNotification)
+    {
+        if stack.managedContext.hasChanges
+        {
+            var error: NSErrorPointer = nil
+            if !stack.managedContext.save(error)
+            {
+                println("error saving \(error)")
+            }
+        }
+    }
+    
+    func persistentStoreCoordinatorStoresDidChange(notification: NSNotification)
+    {
+        fetchResultsController?.performFetch(nil)
+        
+        println("persistentStoreCoordinatorStoresDidChange")
+        
     }
     
     override func numberOfSectionsInCollectionView(collectionView: UICollectionView) -> Int {

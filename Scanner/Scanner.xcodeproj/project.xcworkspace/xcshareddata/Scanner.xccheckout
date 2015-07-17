@@ -12,8 +12,6 @@
 	<dict>
 		<key>44EB8E5BA5436983F3B3FD90E96A6E0C2D1D0891</key>
 		<string>https://github.com/SouthSnow/Scanner.git</string>
-		<key>8883F8E04EF02C730F39D1E5229D23D011D1C74D</key>
-		<string>https://www.github.com/SouthSnow/Demos.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>Scanner/Scanner.xcodeproj</string>
@@ -21,8 +19,6 @@
 	<dict>
 		<key>44EB8E5BA5436983F3B3FD90E96A6E0C2D1D0891</key>
 		<string>../../..</string>
-		<key>8883F8E04EF02C730F39D1E5229D23D011D1C74D</key>
-		<string>../../../../Demos</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>https://github.com/SouthSnow/Scanner.git</string>
@@ -32,14 +28,6 @@
 	<string>44EB8E5BA5436983F3B3FD90E96A6E0C2D1D0891</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
-		<dict>
-			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
-			<string>public.vcs.git</string>
-			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>8883F8E04EF02C730F39D1E5229D23D011D1C74D</string>
-			<key>IDESourceControlWCCName</key>
-			<string>Demos</string>
-		</dict>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
