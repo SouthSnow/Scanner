@@ -15,8 +15,8 @@ protocol MKMasonryViewLayoutDelegate
 
 class ScanViewLayout: UICollectionViewLayout {
    
-    private var lastYValueForColumn: NSMutableDictionary?
-    private var layoutInfo: NSMutableDictionary?
+    private var lastYValueForColumn = Dictionary<Int,AnyObject>?()//NSMutableDictionary?
+    private var layoutInfo = Dictionary<NSObject,AnyObject>?()
     private var indexPath: NSIndexPath?
     private var animator: UIDynamicAnimator?
     private var behavior: UIAttachmentBehavior?
@@ -32,56 +32,69 @@ class ScanViewLayout: UICollectionViewLayout {
         
         super.prepareLayout()
         
-        layoutInfo = NSMutableDictionary()
-        lastYValueForColumn = NSMutableDictionary()
+        layoutInfo = [0:0]
+        lastYValueForColumn = [0:0]
         
-        for indexPath in lastYValueForColumn!.allKeys as! [NSNumber]
+        for indexPath in lastYValueForColumn!.keys
         {
-            lastYValueForColumn?.setObject(NSNumber(double: 0), forKey: indexPath)
+//            lastYValueForColumn?.setObject(NSNumber(double: 0), forKey: indexPath)
+//            lastYValueForColumn?.updateValue(0, forKey: indexPath)
+            lastYValueForColumn![indexPath] = 0
         }
         
         
         numberOfColumn = 1
         interItemSpacing = 0
-        var currentColumn = 0
+        var currentColumn: Int = 0
         let fullWidth = collectionView?.bounds.width
         var availableSpaceExcludingPadding: CGFloat = fullWidth! - interItemSpacing * (CGFloat(numberOfColumn!) + 1)
         var itemWith: CGFloat = availableSpaceExcludingPadding / CGFloat(numberOfColumn)
         
         let numSections = self.collectionView?.numberOfSections()
         
-        for section in 0..<numSections!
+        if let numSections = numSections
         {
-            var numItems = self.collectionView?.numberOfItemsInSection(section)
-          
-            for itemIndex in 0..<numItems!
+            for section in 0..<numSections
             {
-                var indexPath = NSIndexPath(forItem: itemIndex, inSection: section)
+                var numItems = self.collectionView?.numberOfItemsInSection(section)
                 
-                var itemAttributes = UICollectionViewLayoutAttributes(forCellWithIndexPath: indexPath)
-                var x = interItemSpacing + (interItemSpacing + itemWith) * CGFloat(currentColumn)
-               
-                var y: CGFloat = 0
-                
-                if let obj: AnyObject = lastYValueForColumn!.objectForKey(NSNumber(integer: currentColumn))
+                if let numItems = numItems
                 {
-                   y = CGFloat(obj.doubleValue)
+                    for itemIndex in 0..<numItems
+                    {
+                        var indexPath = NSIndexPath(forItem: itemIndex, inSection: section)
+                        
+                        var itemAttributes = UICollectionViewLayoutAttributes(forCellWithIndexPath: indexPath)
+                        var x = interItemSpacing + (interItemSpacing + itemWith) * CGFloat(currentColumn)
+                        
+                        var y: CGFloat = 0
+                        
+                        if let obj: AnyObject = lastYValueForColumn![currentColumn]//lastYValueForColumn!.objectForKey(NSNumber(integer: currentColumn))
+                        {
+                            y = CGFloat(obj as! NSNumber)
+                        }
+                        
+                        
+                        var height: CGFloat = (self.collectionView?.delegate as! MKMasonryViewLayoutDelegate).collectionView(collectionView!, layout: self, heightForItemAtIndexPath: indexPath)
+                        itemAttributes.frame = CGRectMake(x, y, itemWith, height)
+                        y += height
+                        y += interItemSpacing
+                        
+//                        lastYValueForColumn?.setObject(NSNumber(double: Double(y)), forKey: NSNumber(integer: currentColumn))
+//                        lastYValueForColumn?.updateValue(y, forKey: currentColumn)
+                        lastYValueForColumn![currentColumn] = y
+                        currentColumn++
+                        if currentColumn == numberOfColumn
+                        {
+                            currentColumn = 0
+                        }
+                        
+//                        layoutInfo?.setObject(itemAttributes, forKey: indexPath)
+//                        layoutInfo?.updateValue(itemAttributes, forKey: indexPath)
+                            layoutInfo![indexPath] = itemAttributes
+                    }
                 }
                 
-    
-                var height: CGFloat = (self.collectionView?.delegate as! MKMasonryViewLayoutDelegate).collectionView(collectionView!, layout: self, heightForItemAtIndexPath: indexPath)
-                itemAttributes.frame = CGRectMake(x, y, itemWith, height)
-                y += height
-                y += interItemSpacing
-                
-                lastYValueForColumn?.setObject(NSNumber(double: Double(y)), forKey: NSNumber(integer: currentColumn))
-                currentColumn++
-                if currentColumn == numberOfColumn
-                {
-                    currentColumn = 0
-                }
-                
-                layoutInfo?.setObject(itemAttributes, forKey: indexPath)
             }
         }
     }
@@ -94,7 +107,7 @@ class ScanViewLayout: UICollectionViewLayout {
         do{
             var height: CGFloat = 0
             
-            if let culumnHeight: AnyObject = lastYValueForColumn!.objectForKey(NSNumber(integer: currentColumn))
+            if let culumnHeight: AnyObject = lastYValueForColumn![currentColumn]
             {
                 height = CGFloat(culumnHeight.doubleValue)
             }
@@ -116,24 +129,40 @@ class ScanViewLayout: UICollectionViewLayout {
      
             var allAttributes = NSMutableArray(capacity: self.layoutInfo!.count)
 
-            self.layoutInfo?.enumerateKeysAndObjectsUsingBlock({(indexPath, attributes, stop) -> Void in
-                
-                if CGRectIntersectsRect(rect, (attributes as! UICollectionViewLayoutAttributes).frame)
-                {
-                    if let selectIndexPath = self.indexPath
-                    {
-                        if self.indexPath!.isEqual(indexPath as AnyObject) == false
-                        {
+//            self.layoutInfo?.enumerateKeysAndObjectsUsingBlock({(indexPath, attributes, stop) -> Void in
+//                
+//                if CGRectIntersectsRect(rect, (attributes as! UICollectionViewLayoutAttributes).frame)
+//                {
+//                    if let selectIndexPath = self.indexPath
+//                    {
+//                        if self.indexPath!.isEqual(indexPath as AnyObject) == false
+//                        {
+//                            allAttributes.addObject(attributes)
+//                        }
+//                    }
+//                    else
+//                    {
+//                        allAttributes.addObject(attributes)
+//                    }
+//                }
+//            })
+        
+        if let layoutInfo = self.layoutInfo {
+            for (indexPath,attributes) in layoutInfo {
+                if CGRectIntersectsRect(rect, attributes.frame) {
+                    if let selectIndexPath = self.indexPath {
+                        if !selectIndexPath.isEqual(indexPath) {
                             allAttributes.addObject(attributes)
                         }
                     }
-                    else
-                    {
+                    else {
                         allAttributes.addObject(attributes)
                     }
                 }
-            })
-            
+            }
+        }
+        
+        
            if let selectIndexPath = self.indexPath
            {
              allAttributes.addObjectsFromArray(self.animator!.itemsInRect(rect))
@@ -214,7 +243,7 @@ class ScanViewLayout: UICollectionViewLayout {
     func stopDrag()
     {
         isDrag = false
-        var attributes = self.layoutInfo?.objectForKey(indexPath!) as! UICollectionViewLayoutAttributes
+        var attributes = self.layoutInfo![indexPath!] as! UICollectionViewLayoutAttributes
         updateDragLocation(attributes.center)
         self.indexPath = nil
         self.behavior = nil
@@ -228,7 +257,7 @@ class ScanViewLayout: UICollectionViewLayout {
         
         self.indexPath = indexPath
         self.animator = UIDynamicAnimator(collectionViewLayout: self)
-        var attributes = self.layoutInfo?.objectForKey(indexPath) as! UICollectionViewLayoutAttributes
+        var attributes = self.layoutInfo![indexPath] as! UICollectionViewLayoutAttributes
         attributes.zIndex += 1
 
         self.behavior = UIAttachmentBehavior(item: attributes, attachedToAnchor: point)
@@ -248,7 +277,13 @@ class ScanViewLayout: UICollectionViewLayout {
 }
 
 
-
+//extension Int: NSCopying {
+//    
+//    func public copyWithZone(zone: NSZone) -> AnyObject {
+//        return 2
+//    }
+//    
+//}
 
 
 
