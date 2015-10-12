@@ -49,7 +49,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
     
     func storeURL()->(NSURL,NSURL)
     {
-        let documentDirectory = NSFileManager.defaultManager().URLForDirectory(NSSearchPathDirectory.DocumentDirectory, inDomain: NSSearchPathDomainMask.UserDomainMask, appropriateForURL: nil, create: true, error: nil)
+        let documentDirectory = try? NSFileManager.defaultManager().URLForDirectory(NSSearchPathDirectory.DocumentDirectory, inDomain: NSSearchPathDomainMask.UserDomainMask, appropriateForURL: nil, create: true)
         
         
         // MARK: 
@@ -120,7 +120,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
     lazy var applicationDocumentsDirectory: NSURL = {
         // The directory the application uses to store the Core Data store file. This code uses a directory named "com.pfl.CoreDatasss" in the application's documents Application Support directory.
         let urls = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)
-        return urls[urls.count-1] as! NSURL
+        return urls[urls.count-1] 
         }()
     
     
@@ -147,7 +147,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
         let url = self.applicationDocumentsDirectory.URLByAppendingPathComponent("db.sqlite")
         var error: NSError? = nil
         var failureReason = "There was an error creating or loading the application's saved data."
-        if coordinator!.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: url, options: self.storeOptions, error: &error) == nil {
+        do {
+            try coordinator!.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: url, options: self.storeOptions)
+        } catch var error1 as NSError {
+            error = error1
             coordinator = nil
             // Report any error we got.
             var dict = [String: AnyObject]()
@@ -159,6 +162,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
             // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
             NSLog("Unresolved error \(error), \(error!.userInfo)")
             abort()
+        } catch {
+            fatalError()
         }
         
         return coordinator
@@ -206,11 +211,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
     func saveContext () {
         if let moc = self.managedObjectContext {
             var error: NSError? = nil
-            if moc.hasChanges && !moc.save(&error) {
-                // Replace this implementation with code to handle the error appropriately.
-                // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                NSLog("Unresolved error \(error), \(error!.userInfo)")
-                abort()
+            if moc.hasChanges {
+                do {
+                    try moc.save()
+                } catch let error1 as NSError {
+                    error = error1
+                    // Replace this implementation with code to handle the error appropriately.
+                    // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
+                    NSLog("Unresolved error \(error), \(error!.userInfo)")
+                    abort()
+                }
             }
         }
     }
@@ -219,14 +229,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
     
     
     func registerForiCloudNotifications() {
-        var notificationCenter = NSNotificationCenter.defaultCenter()
+        let notificationCenter = NSNotificationCenter.defaultCenter()
 //        notificationCenter.addObserver(self, selector: "storesWillChange:", name: NSPersistentStoreCoordinatorStoresWillChangeNotification, object: persistentStoreCoordinator)
 //        notificationCenter.addObserver(self, selector: "storesDidChange:", name: NSPersistentStoreCoordinatorStoresDidChangeNotification, object: persistentStoreCoordinator)
         notificationCenter.addObserver(self, selector: "persistentStoreDidImportUbiquitousContentChanges:", name: NSPersistentStoreDidImportUbiquitousContentChangesNotification, object: persistentStoreCoordinator)
     }
     
     func persistentStoreDidImportUbiquitousContentChanges(notification:NSNotification){
-        var context = self.managedObjectContext!
+        let context = self.managedObjectContext!
         context.performBlock({
             context.mergeChangesFromContextDidSaveNotification(notification)
             
@@ -234,12 +244,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
     }
     
     func storesWillChange(notification:NSNotification) {
-        println("Store Will change")
-        var context:NSManagedObjectContext! = self.managedObjectContext
+        print("Store Will change")
+        let context:NSManagedObjectContext! = self.managedObjectContext
         context?.performBlock({
             var error:NSError?
             if (context.hasChanges) {
-                var success = context.save(&error)
+                var success: Bool
+                do {
+                    try context.save()
+                    success = true
+                } catch let error1 as NSError {
+                    error = error1
+                    success = false
+                } catch {
+                    fatalError()
+                }
                 
                 if (!success && (error != nil)) {
                     // 执行错误处理
@@ -255,7 +274,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
     
     
     func showAlert() {
-        var message = UIAlertView(title:"iCloud 同步错误", message:"是否使用 iCloud 版本备份覆盖本地记录", delegate: self, cancelButtonTitle:"不要", otherButtonTitles:"好的")
+        let message = UIAlertView(title:"iCloud 同步错误", message:"是否使用 iCloud 版本备份覆盖本地记录", delegate: self, cancelButtonTitle:"不要", otherButtonTitles:"好的")
         message.show()
     }
     
@@ -266,41 +285,44 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
         case 1:
             self.migrateiCloudStoreToLocalStore()
         default:
-            println("Do nothing")
+            print("Do nothing")
         }
     }
     
     func storesDidChange(notification:NSNotification){
-        println("Store did change")
+        print("Store did change")
         NSNotificationCenter.defaultCenter().postNotificationName("CoreDataDidUpdated", object: nil)
     }
     
     func migrateLocalStoreToiCloudStore() {
-        println("Migrate local to icloud")
-        var oldStore = persistentStoreCoordinator?.persistentStores.first as! NSPersistentStore
+        print("Migrate local to icloud")
+        var oldStore = persistentStoreCoordinator?.persistentStores.first
         var localStoreOptions = self.storeOptions
         localStoreOptions[NSPersistentStoreRemoveUbiquitousMetadataOption] = true
-        var newStore = persistentStoreCoordinator?.migratePersistentStore(oldStore, toURL: cloudDirectory, options: localStoreOptions, withType: NSSQLiteStoreType, error: nil)
+        var newStore = try? persistentStoreCoordinator?.migratePersistentStore(oldStore!, toURL: cloudDirectory, options: localStoreOptions, withType: NSSQLiteStoreType)
         
-        reloadStore(newStore)
+        reloadStore(newStore!)
     }
     
     func migrateiCloudStoreToLocalStore() {
-        println("Migrate icloud to local")
-        var oldStore = persistentStoreCoordinator?.persistentStores.first as! NSPersistentStore
+        print("Migrate icloud to local")
+        var oldStore = persistentStoreCoordinator?.persistentStores.first
         var localStoreOptions = self.storeOptions
         localStoreOptions[NSPersistentStoreRemoveUbiquitousMetadataOption] = true
-        var newStore = persistentStoreCoordinator?.migratePersistentStore(oldStore, toURL:  self.applicationDocumentsDirectory.URLByAppendingPathComponent("Diary.sqlite"), options: localStoreOptions, withType: NSSQLiteStoreType, error: nil)
+        var newStore = try? persistentStoreCoordinator?.migratePersistentStore(oldStore!, toURL:  self.applicationDocumentsDirectory.URLByAppendingPathComponent("Diary.sqlite"), options: localStoreOptions, withType: NSSQLiteStoreType)
         
-        reloadStore(newStore)
+        reloadStore(newStore!)
     }
     
     func reloadStore(store: NSPersistentStore?) {
         if (store != nil) {
-            persistentStoreCoordinator?.removePersistentStore(store!, error: nil)
+            do {
+                try persistentStoreCoordinator?.removePersistentStore(store!)
+            } catch _ {
+            }
         }
         
-        persistentStoreCoordinator?.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: self.applicationDocumentsDirectory.URLByAppendingPathComponent("Diary.sqlite"), options: self.storeOptions, error: nil)
+        try? persistentStoreCoordinator?.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: self.applicationDocumentsDirectory.URLByAppendingPathComponent("Diary.sqlite"), options: self.storeOptions)
         
         NSNotificationCenter.defaultCenter().postNotificationName("CoreDataDidUpdated", object: nil)
     }

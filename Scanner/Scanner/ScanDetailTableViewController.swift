@@ -39,7 +39,11 @@ class ScanDetailTableViewController: UITableViewController {
         fetchResultsController?.delegate = self
         managedObjectContext = stack.managedContext
         var error: NSError?
-        fetchResultsController?.performFetch(&error)
+        do {
+            try fetchResultsController?.performFetch()
+        } catch let error1 as NSError {
+            error = error1
+        }
         tableView.reloadData()
     }
 
@@ -47,9 +51,12 @@ class ScanDetailTableViewController: UITableViewController {
     
     func persistentStoreCoordinatorStoresWillChange(notification: NSNotification) {
         
-        var error: NSErrorPointer = nil
+        let error: NSErrorPointer = nil
         if self.stack.managedContext.hasChanges {
-            if !self.stack.managedContext.save(error) {
+            do {
+                try self.stack.managedContext.save()
+            } catch let error1 as NSError {
+                error.memory = error1
                 
             }
         }
@@ -59,7 +66,11 @@ class ScanDetailTableViewController: UITableViewController {
     func persistentStoreCoordinatorStoresDidChange(notification: NSNotification) {
         
         var error: NSError?
-        fetchResultsController?.performFetch(&error)
+        do {
+            try fetchResultsController?.performFetch()
+        } catch let error1 as NSError {
+            error = error1
+        }
     }
  
 
@@ -89,7 +100,7 @@ class ScanDetailTableViewController: UITableViewController {
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("reuseIdentifier") as! ScanTableViewCell
-        var scanItem = fetchResultsController?.objectAtIndexPath(indexPath) as! ScanItem
+        let scanItem = fetchResultsController?.objectAtIndexPath(indexPath) as! ScanItem
         
         cell.scanImageView.image = UIImage(named:"scan")
         cell.scanDetailLabel.text = scanItem.scanDetail
@@ -100,7 +111,7 @@ class ScanDetailTableViewController: UITableViewController {
 
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath){
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
-        var scanItem = fetchResultsController?.objectAtIndexPath(indexPath) as! ScanItem
+        let scanItem = fetchResultsController?.objectAtIndexPath(indexPath) as! ScanItem
         if scanItem.scanDetail.hasPrefix("http") || scanItem.scanDetail.hasPrefix("www")
         {
             UIApplication.sharedApplication().openURL(NSURL(string:scanItem.scanDetail)!)
@@ -113,7 +124,10 @@ class ScanDetailTableViewController: UITableViewController {
         let item = fetchResultsController?.objectAtIndexPath(indexPath) as! ScanItem
         
         self.managedObjectContext!.deleteObject(item)
-        self.managedObjectContext?.save(nil)
+        do {
+            try self.managedObjectContext?.save()
+        } catch _ {
+        }
     }
    
     override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {

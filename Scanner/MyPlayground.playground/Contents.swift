@@ -30,8 +30,8 @@ func addOptional2(OptionalX: Int?, OptionalY: Int?)->Int?
     
 }
 
-addOptional(3, 8)
-addOptional2(2, 0)
+addOptional(3, OptionalY: 8)
+addOptional2(2, OptionalY: 0)
 
 
 func incrementOptional(x: Int?) -> Int?
@@ -55,7 +55,7 @@ func combinationFucntion(x: Int?,f:(Int?, Int?)->Int?)->Int?
 }
 
 
-combinationFucntion(3, addOptional2)
+combinationFucntion(3, f: addOptional2)
 
 
 let aString: String = "helloSwift"
@@ -64,9 +64,6 @@ let start = aString.startIndex
 let successor = start.successor()
 let predecessor = successor.predecessor()
 let next = successor.successor()
-let subString = aString.substringToIndex(advance(start, 6))
-let subString2 = aString.substringFromIndex(advance(start, 7))
-let sunString3 = aString.substringWithRange(Range(start: advance(start, 2), end: advance(start, 7)))
-
-
-
+let subString = aString.substringToIndex(start.advancedBy(6))
+let subString2 = aString.substringFromIndex(start.advancedBy(7))
+let sunString3 = aString.substringWithRange(Range(start: start.advancedBy(2

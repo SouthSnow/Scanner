@@ -9,7 +9,7 @@
 import AVFoundation
 import Foundation
 
-class CaptureVideoLayer: AVCaptureVideoPreviewLayer,NSCoding {
+class CaptureVideoLayer: AVCaptureVideoPreviewLayer {
 
     override func copy() -> AnyObject {
         
