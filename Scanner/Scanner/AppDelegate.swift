@@ -65,7 +65,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
         if fm.URLForUbiquityContainerIdentifier(nil) == nil
         {
             let alertView = UIAlertView(title: "提示", message: "iCloud不可用", delegate: self, cancelButtonTitle: "好的")
-            
+            alertView .show()
             return false
         }
         
@@ -83,7 +83,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
     {
         persistentStack?.managedContext.performBlock({ () -> Void in
             
-            persistentStack?.managedContext.mergeChangesFromContextDidSaveNotification(notification)
+            self.persistentStack?.managedContext.mergeChangesFromContextDidSaveNotification(notification)
             
         })
     }
@@ -296,20 +296,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
     
     func migrateLocalStoreToiCloudStore() {
         print("Migrate local to icloud")
-        var oldStore = persistentStoreCoordinator?.persistentStores.first
+        let oldStore = persistentStoreCoordinator?.persistentStores.first
         var localStoreOptions = self.storeOptions
         localStoreOptions[NSPersistentStoreRemoveUbiquitousMetadataOption] = true
-        var newStore = try? persistentStoreCoordinator?.migratePersistentStore(oldStore!, toURL: cloudDirectory, options: localStoreOptions, withType: NSSQLiteStoreType)
+        let newStore = try? persistentStoreCoordinator?.migratePersistentStore(oldStore!, toURL: cloudDirectory, options: localStoreOptions, withType: NSSQLiteStoreType)
         
         reloadStore(newStore!)
     }
     
     func migrateiCloudStoreToLocalStore() {
         print("Migrate icloud to local")
-        var oldStore = persistentStoreCoordinator?.persistentStores.first
+        let oldStore = persistentStoreCoordinator?.persistentStores.first
         var localStoreOptions = self.storeOptions
         localStoreOptions[NSPersistentStoreRemoveUbiquitousMetadataOption] = true
-        var newStore = try? persistentStoreCoordinator?.migratePersistentStore(oldStore!, toURL:  self.applicationDocumentsDirectory.URLByAppendingPathComponent("Diary.sqlite"), options: localStoreOptions, withType: NSSQLiteStoreType)
+        let newStore = try? persistentStoreCoordinator?.migratePersistentStore(oldStore!, toURL:  self.applicationDocumentsDirectory.URLByAppendingPathComponent("Diary.sqlite"), options: localStoreOptions, withType: NSSQLiteStoreType)
         
         reloadStore(newStore!)
     }
@@ -322,7 +322,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
             }
         }
         
-        try? persistentStoreCoordinator?.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: self.applicationDocumentsDirectory.URLByAppendingPathComponent("Diary.sqlite"), options: self.storeOptions)
+        _ =  try? persistentStoreCoordinator?.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: self.applicationDocumentsDirectory.URLByAppendingPathComponent("Diary.sqlite"), options: self.storeOptions)
         
         NSNotificationCenter.defaultCenter().postNotificationName("CoreDataDidUpdated", object: nil)
     }
