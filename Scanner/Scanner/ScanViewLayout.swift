@@ -222,7 +222,7 @@ class ScanViewLayout: UICollectionViewLayout {
         
         self.indexPath = indexPath
         self.animator = UIDynamicAnimator(collectionViewLayout: self)
-        var attributes = self.layoutInfo[indexPath] as! UICollectionViewLayoutAttributes
+        let attributes = self.layoutInfo[indexPath] as! UICollectionViewLayoutAttributes
         attributes.zIndex += 1
 
         self.behavior = UIAttachmentBehavior(item: attributes, attachedToAnchor: point)
@@ -230,7 +230,7 @@ class ScanViewLayout: UICollectionViewLayout {
         self.behavior?.length = 0
         self.animator?.addBehavior(self.behavior!)
 
-        var behaviorItem = UIDynamicItemBehavior(items: [attributes])
+        let behaviorItem = UIDynamicItemBehavior(items: [attributes])
         behaviorItem.resistance = 10
         self.animator?.addBehavior(behaviorItem)
 

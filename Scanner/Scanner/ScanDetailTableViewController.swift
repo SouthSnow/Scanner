@@ -80,7 +80,7 @@ class ScanDetailTableViewController: UITableViewController {
    
         if let sections = fetchResultsController?.sections
         {
-            return  fetchResultsController!.sections!.count
+            return  sections.count
         }
         return 0
     }
