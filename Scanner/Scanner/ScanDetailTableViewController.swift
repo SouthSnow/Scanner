@@ -10,31 +10,31 @@ import UIKit
 
 class ScanDetailTableViewController: UITableViewController {
 
-    var fetchResultsController: NSFetchedResultsController?
+    var fetchResultsController: NSFetchedResultsController<NSFetchRequestResult>?
     var managedObjectContext: NSManagedObjectContext?
-     var appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+     var appDelegate = UIApplication.shared.delegate as! AppDelegate
     var stack: PersistentStack!
 
     
-    var persistentStoreCoordinatorChangesObserver:NSNotificationCenter? {
+    var persistentStoreCoordinatorChangesObserver:NotificationCenter? {
         didSet {
             
-            oldValue?.removeObserver(self, name: NSPersistentStoreCoordinatorStoresDidChangeNotification, object: self.stack.managedContext.persistentStoreCoordinator)
-            oldValue?.removeObserver(self, name: NSPersistentStoreCoordinatorStoresWillChangeNotification, object: self.stack.managedContext.persistentStoreCoordinator)
+            oldValue?.removeObserver(self, name: NSNotification.Name.NSPersistentStoreCoordinatorStoresDidChange, object: self.stack.managedContext.persistentStoreCoordinator)
+            oldValue?.removeObserver(self, name: NSNotification.Name.NSPersistentStoreCoordinatorStoresWillChange, object: self.stack.managedContext.persistentStoreCoordinator)
             
-            persistentStoreCoordinatorChangesObserver?.addObserver(self, selector: "persistentStoreCoordinatorStoresWillChange:", name: NSPersistentStoreCoordinatorStoresWillChangeNotification, object: self.stack.managedContext.persistentStoreCoordinator)
-            persistentStoreCoordinatorChangesObserver?.addObserver(self, selector: "persistentStoreCoordinatorStoresDidChange:", name: NSPersistentStoreCoordinatorStoresDidChangeNotification, object: self.stack.managedContext.persistentStoreCoordinator)
+            persistentStoreCoordinatorChangesObserver?.addObserver(self, selector: #selector(ScanDetailTableViewController.persistentStoreCoordinatorStoresWillChange(_:)), name: NSNotification.Name.NSPersistentStoreCoordinatorStoresWillChange, object: self.stack.managedContext.persistentStoreCoordinator)
+            persistentStoreCoordinatorChangesObserver?.addObserver(self, selector: #selector(ScanDetailTableViewController.persistentStoreCoordinatorStoresDidChange(_:)), name: NSNotification.Name.NSPersistentStoreCoordinatorStoresDidChange, object: self.stack.managedContext.persistentStoreCoordinator)
         }
         
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        tableView.registerClass(ScanTableViewCell.self, forCellReuseIdentifier: "reuseIdentifier")
+        tableView.register(ScanTableViewCell.self, forCellReuseIdentifier: "reuseIdentifier")
         tableView.rowHeight = 60
         stack = appDelegate.stack
         stack.updateContextWithUbiquitousContentUpdates = true
-        persistentStoreCoordinatorChangesObserver = NSNotificationCenter.defaultCenter()
+        persistentStoreCoordinatorChangesObserver = NotificationCenter.default
         fetchResultsController = stack.fetchedResultsController
         fetchResultsController?.delegate = self
         managedObjectContext = stack.managedContext
@@ -49,21 +49,21 @@ class ScanDetailTableViewController: UITableViewController {
 
     
     
-    func persistentStoreCoordinatorStoresWillChange(notification: NSNotification) {
+    func persistentStoreCoordinatorStoresWillChange(_ notification: Notification) {
         
-        let error: NSErrorPointer = nil
+        let error: NSErrorPointer? = nil
         if self.stack.managedContext.hasChanges {
             do {
                 try self.stack.managedContext.save()
             } catch let error1 as NSError {
-                error.memory = error1
+                error??.pointee = error1
                 
             }
         }
         
     }
     
-    func persistentStoreCoordinatorStoresDidChange(notification: NSNotification) {
+    func persistentStoreCoordinatorStoresDidChange(_ notification: Notification) {
         
         var error: NSError?
         do {
@@ -76,7 +76,7 @@ class ScanDetailTableViewController: UITableViewController {
 
     // MARK: - Table view data source
 
-    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    override func numberOfSections(in tableView: UITableView) -> Int {
    
         if let sections = fetchResultsController?.sections
         {
@@ -85,7 +85,7 @@ class ScanDetailTableViewController: UITableViewController {
         return 0
     }
 
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
      
         
         if let sections = fetchResultsController?.sections
@@ -98,9 +98,9 @@ class ScanDetailTableViewController: UITableViewController {
     }
 
     
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("reuseIdentifier") as! ScanTableViewCell
-        let scanItem = fetchResultsController?.objectAtIndexPath(indexPath) as! ScanItem
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "reuseIdentifier") as! ScanTableViewCell
+        let scanItem = fetchResultsController?.object(at: indexPath) as! ScanItem
         
         cell.scanImageView.image = UIImage(named:"scan")
         cell.scanDetailLabel.text = scanItem.scanDetail
@@ -109,28 +109,28 @@ class ScanDetailTableViewController: UITableViewController {
         return cell
     }
 
-    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath){
-        tableView.deselectRowAtIndexPath(indexPath, animated: true)
-        let scanItem = fetchResultsController?.objectAtIndexPath(indexPath) as! ScanItem
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath){
+        tableView.deselectRow(at: indexPath, animated: true)
+        let scanItem = fetchResultsController?.object(at: indexPath) as! ScanItem
         if scanItem.scanDetail.hasPrefix("http") || scanItem.scanDetail.hasPrefix("www")
         {
-            UIApplication.sharedApplication().openURL(NSURL(string:scanItem.scanDetail)!)
+            UIApplication.shared.openURL(URL(string:scanItem.scanDetail)!)
         }
     }
 
     
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         
-        let item = fetchResultsController?.objectAtIndexPath(indexPath) as! ScanItem
+        let item = fetchResultsController?.object(at: indexPath) as! ScanItem
         
-        self.managedObjectContext!.deleteObject(item)
+        self.managedObjectContext!.delete(item)
         do {
             try self.managedObjectContext?.save()
         } catch _ {
         }
     }
    
-    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         return true
     }
 
@@ -147,25 +147,25 @@ class ScanDetailTableViewController: UITableViewController {
 extension ScanDetailTableViewController: NSFetchedResultsControllerDelegate
 {
     
-    func controllerWillChangeContent(controller: NSFetchedResultsController) {
+    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         
         self.tableView.beginUpdates()
     }
     
-    func controllerDidChangeContent(controller: NSFetchedResultsController) {
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         self.tableView.endUpdates()
     }
     
     
-    func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         
         switch type
         {
-            case NSFetchedResultsChangeType.Delete:
-            tableView.deleteRowsAtIndexPaths([indexPath!], withRowAnimation: UITableViewRowAnimation.Automatic)
+            case NSFetchedResultsChangeType.delete:
+            tableView.deleteRows(at: [indexPath!], with: UITableViewRowAnimation.automatic)
             
-            case NSFetchedResultsChangeType.Insert:
-            tableView.insertRowsAtIndexPaths([newIndexPath!], withRowAnimation: UITableViewRowAnimation.Automatic)
+            case NSFetchedResultsChangeType.insert:
+            tableView.insertRows(at: [newIndexPath!], with: UITableViewRowAnimation.automatic)
             default: break
         }
         

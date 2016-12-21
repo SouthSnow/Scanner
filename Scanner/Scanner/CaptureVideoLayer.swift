@@ -11,7 +11,7 @@ import Foundation
 
 class CaptureVideoLayer: AVCaptureVideoPreviewLayer {
 
-    override func copy() -> AnyObject {
+    override func copy() -> Any {
         
         
         return CaptureVideoLayer()

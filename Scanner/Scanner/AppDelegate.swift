@@ -18,7 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
     var window: UIWindow?
     var persistentStack: PersistentStack?
     var store: Store?
-    func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         
         let nav = self.window?.rootViewController as! UINavigationController
         let rootVC: ViewController = nav.topViewController as! ViewController
@@ -43,26 +43,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
 
     lazy var stack: PersistentStack = {
         let stack = PersistentStack(storeName: "db", modelName: "ScanItems", options: self.storeOptions)
-        return stack;
+        return stack!;
         }()
     
     
-    func storeURL()->(NSURL,NSURL)
+    func storeURL()->(URL,URL)
     {
-        let documentDirectory = try? NSFileManager.defaultManager().URLForDirectory(NSSearchPathDirectory.DocumentDirectory, inDomain: NSSearchPathDomainMask.UserDomainMask, appropriateForURL: nil, create: true)
+        let documentDirectory = try? FileManager.default.url(for: FileManager.SearchPathDirectory.documentDirectory, in: FileManager.SearchPathDomainMask.userDomainMask, appropriateFor: nil, create: true)
         
         
         // MARK: 
-        let modelURL = NSBundle.mainBundle().URLForResource("ScanItems", withExtension: "momd")
+        let modelURL = Bundle.main.url(forResource: "ScanItems", withExtension: "momd")
         
-        return (documentDirectory!.URLByAppendingPathComponent("db.sqlite"),modelURL!)
+        return (documentDirectory!.appendingPathComponent("db.sqlite"),modelURL!)
     }
     
     
     func initCloud()->Bool
     {
-        let fm = NSFileManager.defaultManager()
-        if fm.URLForUbiquityContainerIdentifier(nil) == nil
+        let fm = FileManager.default
+        if fm.url(forUbiquityContainerIdentifier: nil) == nil
         {
             let alertView = UIAlertView(title: "提示", message: "iCloud不可用", delegate: self, cancelButtonTitle: "好的")
             alertView .show()
@@ -76,37 +76,37 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
     
     func registerNotifications()
     {
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "contextDidSavePrivateQueueContext", name: NSManagedObjectContextDidSaveNotification, object: persistentStack?.managedContext)
+        NotificationCenter.default.addObserver(self, selector: "contextDidSavePrivateQueueContext", name: NSNotification.Name.NSManagedObjectContextDidSave, object: persistentStack?.managedContext)
     }
     
-    func contextDidSavePrivateQueueContext(notification: NSNotification)
+    func contextDidSavePrivateQueueContext(_ notification: Notification)
     {
-        persistentStack?.managedContext.performBlock({ () -> Void in
+        persistentStack?.managedContext.perform({ () -> Void in
             
-            self.persistentStack?.managedContext.mergeChangesFromContextDidSaveNotification(notification)
+            self.persistentStack?.managedContext.mergeChanges(fromContextDidSave: notification)
             
         })
     }
 
-    func applicationWillResignActive(application: UIApplication) {
+    func applicationWillResignActive(_ application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
     }
 
-    func applicationDidEnterBackground(application: UIApplication) {
+    func applicationDidEnterBackground(_ application: UIApplication) {
         // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
     }
 
-    func applicationWillEnterForeground(application: UIApplication) {
+    func applicationWillEnterForeground(_ application: UIApplication) {
         // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
     }
 
-    func applicationDidBecomeActive(application: UIApplication) {
+    func applicationDidBecomeActive(_ application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
     }
 
-    func applicationWillTerminate(application: UIApplication) {
+    func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
         
         self.saveContext()
@@ -117,45 +117,45 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
     
     // MARK: - Core Data stack
     
-    lazy var applicationDocumentsDirectory: NSURL = {
+    lazy var applicationDocumentsDirectory: URL = {
         // The directory the application uses to store the Core Data store file. This code uses a directory named "com.pfl.CoreDatasss" in the application's documents Application Support directory.
-        let urls = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)
+        let urls = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         return urls[urls.count-1] 
         }()
     
     
-    lazy var cloudDirectory: NSURL = {
+    lazy var cloudDirectory: URL = {
         
         var teamID = "iCloud."
-        var bundleID = NSBundle.mainBundle().bundleIdentifier!
+        var bundleID = Bundle.main.bundleIdentifier!
         var cloudRoot = "\(teamID)\(bundleID).sync"
-        let url = NSFileManager.defaultManager().URLForUbiquityContainerIdentifier("\(cloudRoot)")
+        let url = FileManager.default.url(forUbiquityContainerIdentifier: "\(cloudRoot)")
         return url!
         
     }()
     
     lazy var managedObjectModel: NSManagedObjectModel = {
         // The managed object model for the application. This property is not optional. It is a fatal error for the application not to be able to find and load its model.
-        let modelURL = NSBundle.mainBundle().URLForResource("ScanItems", withExtension: "momd")!
-        return NSManagedObjectModel(contentsOfURL: modelURL)!
+        let modelURL = Bundle.main.url(forResource: "ScanItems", withExtension: "momd")!
+        return NSManagedObjectModel(contentsOf: modelURL)!
         }()
     
     lazy var persistentStoreCoordinator: NSPersistentStoreCoordinator? = {
         // The persistent store coordinator for the application. This implementation creates and return a coordinator, having added the store for the application to it. This property is optional since there are legitimate error conditions that could cause the creation of the store to fail.
         // Create the coordinator and store
         var coordinator: NSPersistentStoreCoordinator? = NSPersistentStoreCoordinator(managedObjectModel: self.managedObjectModel)
-        let url = self.applicationDocumentsDirectory.URLByAppendingPathComponent("db.sqlite")
+        let url = self.applicationDocumentsDirectory.appendingPathComponent("db.sqlite")
         var error: NSError? = nil
         var failureReason = "There was an error creating or loading the application's saved data."
         do {
-            try coordinator!.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: url, options: self.storeOptions)
+            try coordinator!.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: url, options: self.storeOptions)
         } catch var error1 as NSError {
             error = error1
             coordinator = nil
             // Report any error we got.
             var dict = [String: AnyObject]()
-            dict[NSLocalizedDescriptionKey] = "Failed to initialize the application's saved data"
-            dict[NSLocalizedFailureReasonErrorKey] = failureReason
+            dict[NSLocalizedDescriptionKey] = "Failed to initialize the application's saved data" as AnyObject?
+            dict[NSLocalizedFailureReasonErrorKey] = failureReason as AnyObject?
             dict[NSUnderlyingErrorKey] = error
             error = NSError(domain: "YOUR_ERROR_DOMAIN", code: 9999, userInfo: dict)
             // Replace this with code to handle the error appropriately.
@@ -180,18 +180,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
         return managedObjectContext
         }()
     
-    lazy var fetchResultsController: NSFetchedResultsController = {
-       
-        var fetchRequset = NSFetchRequest(entityName: "ScanItem")
+    lazy var fetchResultsController: NSFetchedResultsController<NSFetchRequestResult> = { () -> NSFetchedResultsController<NSFetchRequestResult> in
+        var fetchRequset = NSFetchRequest<NSFetchRequestResult>(entityName: "ScanItem")
         fetchRequset.predicate = NSPredicate(value: true)
         fetchRequset.sortDescriptors = [NSSortDescriptor(key: "scanDate", ascending: false)]
-        
-        return NSFetchedResultsController(fetchRequest: fetchRequset, managedObjectContext: self.managedObjectContext!, sectionNameKeyPath: nil, cacheName: nil)
+        return NSFetchedResultsController(fetchRequest: fetchRequset , managedObjectContext: self.managedObjectContext!, sectionNameKeyPath: nil, cacheName: nil)
         
     }()
     
     
-    lazy var storeOptions: [NSObject : AnyObject] = {
+    lazy var storeOptions: [AnyHashable: Any] = {
        
         return [
 
@@ -229,24 +227,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
     
     
     func registerForiCloudNotifications() {
-        let notificationCenter = NSNotificationCenter.defaultCenter()
+        let notificationCenter = NotificationCenter.default
 //        notificationCenter.addObserver(self, selector: "storesWillChange:", name: NSPersistentStoreCoordinatorStoresWillChangeNotification, object: persistentStoreCoordinator)
 //        notificationCenter.addObserver(self, selector: "storesDidChange:", name: NSPersistentStoreCoordinatorStoresDidChangeNotification, object: persistentStoreCoordinator)
-        notificationCenter.addObserver(self, selector: "persistentStoreDidImportUbiquitousContentChanges:", name: NSPersistentStoreDidImportUbiquitousContentChangesNotification, object: persistentStoreCoordinator)
+        notificationCenter.addObserver(self, selector: #selector(AppDelegate.persistentStoreDidImportUbiquitousContentChanges(_:)), name: NSNotification.Name.NSPersistentStoreDidImportUbiquitousContentChanges, object: persistentStoreCoordinator)
     }
     
-    func persistentStoreDidImportUbiquitousContentChanges(notification:NSNotification){
+    func persistentStoreDidImportUbiquitousContentChanges(_ notification:Notification){
         let context = self.managedObjectContext!
-        context.performBlock({
-            context.mergeChangesFromContextDidSaveNotification(notification)
+        context.perform({
+            context.mergeChanges(fromContextDidSave: notification)
             
         })
     }
     
-    func storesWillChange(notification:NSNotification) {
+    func storesWillChange(_ notification:Notification) {
         print("Store Will change")
         let context:NSManagedObjectContext! = self.managedObjectContext
-        context?.performBlock({
+        context?.perform({
             var error:NSError?
             if (context.hasChanges) {
                 var success: Bool
@@ -278,7 +276,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
         message.show()
     }
     
-    func alertView(alertView: UIAlertView, clickedButtonAtIndex buttonIndex: Int) {
+    func alertView(_ alertView: UIAlertView, clickedButtonAt buttonIndex: Int) {
         switch buttonIndex {
         case 0:
             self.migrateLocalStoreToiCloudStore()
@@ -289,9 +287,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
         }
     }
     
-    func storesDidChange(notification:NSNotification){
+    func storesDidChange(_ notification:Notification){
         print("Store did change")
-        NSNotificationCenter.defaultCenter().postNotificationName("CoreDataDidUpdated", object: nil)
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "CoreDataDidUpdated"), object: nil)
     }
     
     func migrateLocalStoreToiCloudStore() {
@@ -299,7 +297,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
         let oldStore = persistentStoreCoordinator?.persistentStores.first
         var localStoreOptions = self.storeOptions
         localStoreOptions[NSPersistentStoreRemoveUbiquitousMetadataOption] = true
-        let newStore = try? persistentStoreCoordinator?.migratePersistentStore(oldStore!, toURL: cloudDirectory, options: localStoreOptions, withType: NSSQLiteStoreType)
+        let newStore = try? persistentStoreCoordinator?.migratePersistentStore(oldStore!, to: cloudDirectory, options: localStoreOptions, withType: NSSQLiteStoreType)
         
         reloadStore(newStore!)
     }
@@ -309,22 +307,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
         let oldStore = persistentStoreCoordinator?.persistentStores.first
         var localStoreOptions = self.storeOptions
         localStoreOptions[NSPersistentStoreRemoveUbiquitousMetadataOption] = true
-        let newStore = try? persistentStoreCoordinator?.migratePersistentStore(oldStore!, toURL:  self.applicationDocumentsDirectory.URLByAppendingPathComponent("Diary.sqlite"), options: localStoreOptions, withType: NSSQLiteStoreType)
+        let newStore = try? persistentStoreCoordinator?.migratePersistentStore(oldStore!, to:  self.applicationDocumentsDirectory.appendingPathComponent("Diary.sqlite"), options: localStoreOptions, withType: NSSQLiteStoreType)
         
         reloadStore(newStore!)
     }
     
-    func reloadStore(store: NSPersistentStore?) {
+    func reloadStore(_ store: NSPersistentStore?) {
         if (store != nil) {
             do {
-                try persistentStoreCoordinator?.removePersistentStore(store!)
+                try persistentStoreCoordinator?.remove(store!)
             } catch _ {
             }
         }
         
-        _ =  try? persistentStoreCoordinator?.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: self.applicationDocumentsDirectory.URLByAppendingPathComponent("Diary.sqlite"), options: self.storeOptions)
+        _ =  try? persistentStoreCoordinator?.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: self.applicationDocumentsDirectory.appendingPathComponent("Diary.sqlite"), options: self.storeOptions)
         
-        NSNotificationCenter.defaultCenter().postNotificationName("CoreDataDidUpdated", object: nil)
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "CoreDataDidUpdated"), object: nil)
     }
     
 

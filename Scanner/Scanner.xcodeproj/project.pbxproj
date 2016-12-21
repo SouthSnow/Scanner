@@ -355,6 +355,7 @@
 					83C48D7A1B033869000E7EBA = {
 						CreatedOnToolsVersion = 6.3.1;
 						DevelopmentTeam = S4YWE7KR47;
+						LastSwiftMigration = 0810;
 						SystemCapabilities = {
 							com.apple.iCloud = {
 								enabled = 1;
@@ -364,6 +365,7 @@
 					83C48D8F1B033869000E7EBA = {
 						CreatedOnToolsVersion = 6.3.1;
 						DevelopmentTeam = S4YWE7KR47;
+						LastSwiftMigration = 0810;
 						TestTargetID = 83C48D7A1B033869000E7EBA;
 					};
 				};
@@ -584,6 +586,7 @@
 				PROVISIONING_PROFILE = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Scanner/Scanner-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = "armv7 armv7s arm64";
 			};
@@ -614,6 +617,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Scanner/Scanner-Bridging-Header.h";
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = "armv7 armv7s arm64";
 			};
@@ -637,6 +641,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Scanner.app/Scanner";
 			};
 			name = Debug;
@@ -655,6 +660,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Scanner.app/Scanner";
 			};
 			name = Release;

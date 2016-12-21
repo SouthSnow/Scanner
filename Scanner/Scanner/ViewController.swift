@@ -27,8 +27,8 @@ let kReaderWidth: CGFloat = 200
 let kReaderHeight: CGFloat = 200
 let kAlpha: CGFloat = 0.5
 let kSquareWidth: CGFloat = 20
-let kDeviceWidth: CGFloat = UIScreen.mainScreen().bounds.width
-let kDeviceHeigth: CGFloat = UIScreen.mainScreen().bounds.height
+let kDeviceWidth: CGFloat = UIScreen.main.bounds.width
+let kDeviceHeigth: CGFloat = UIScreen.main.bounds.height
 let kLineMinX: CGFloat = kDeviceWidth/2 - kReaderWidth/2
 let kLineMinY: CGFloat = kDeviceHeigth/2 - kReaderHeight/2 - 50
 
@@ -44,14 +44,14 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     var isStopScan: Bool? = false
     var isAnimation: Bool? = false
     var managedObjectContext: NSManagedObjectContext?
-    var fetchResultsController: NSFetchedResultsController?
+    var fetchResultsController: NSFetchedResultsController<NSFetchRequestResult>?
     var metadataQuery: NSMetadataQuery?
     var documents: NSMutableArray?
     var stack: PersistentStack!
     var coverView: UIView?{
         didSet
         {
-            coverView?.backgroundColor = UIColor.blackColor()
+            coverView?.backgroundColor = UIColor.black
             coverView?.layer.opacity = 0.6
         }
     }
@@ -59,9 +59,9 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = "扫描/查询"
-        self.navigationController?.navigationBar.barTintColor = UIColor.greenColor()//(red: 0.863, green: 0.243, blue: 0.051, alpha: 1.0)
-        self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "扫描历史", style: UIBarButtonItemStyle.Plain, target: self, action: "showDetail")
-        self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "相册", style: UIBarButtonItemStyle.Plain, target: self, action: "createThirdScaner")
+        self.navigationController?.navigationBar.barTintColor = UIColor.green//(red: 0.863, green: 0.243, blue: 0.051, alpha: 1.0)
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "扫描历史", style: UIBarButtonItemStyle.plain, target: self, action: #selector(ViewController.showDetail))
+        self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "相册", style: UIBarButtonItemStyle.plain, target: self, action: #selector(ViewController.createThirdScaner))
         
         createSystemSCaner()
         
@@ -70,7 +70,7 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         
     }
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 //            startRuning()
         
@@ -79,7 +79,7 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     }
     
     
-    override func viewDidDisappear(animated: Bool) {
+    override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         stopRuning()
 
@@ -98,16 +98,16 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
             metadataQuery?.searchScopes = [NSMetadataQueryUbiquitousDocumentsScope]
             let filePattern = String(format: "*.%@", filenameExtension)
             metadataQuery?.predicate = NSPredicate(format: "%K LIKE %@", filePattern)
-            metadataQuery?.startQuery()
+            metadataQuery?.start()
             
             // MARK: register notification
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: "processFile:", name: NSMetadataQueryDidFinishGatheringNotification, object: nil)
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: "processFile:", name: NSMetadataQueryDidUpdateNotification, object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(ViewController.processFile(_:)), name: NSNotification.Name.NSMetadataQueryDidFinishGathering, object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(ViewController.processFile(_:)), name: NSNotification.Name.NSMetadataQueryDidUpdate, object: nil)
         }
         
     }
     
-    func processFile(notifition: NSNotification)
+    func processFile(_ notifition: Notification)
     {
         
         metadataQuery?.disableUpdates()
@@ -116,16 +116,17 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         let results = metadataQuery?.results
         let fileItemArr: NSMutableArray = NSMutableArray()
         for metadataItem in results as! [NSMetadataItem] {
-            let fileURL = metadataItem.valueForAttribute(NSMetadataItemURLKey) as! NSURL
+            let fileURL = metadataItem.value(forAttribute: NSMetadataItemURLKey) as! URL
             do {
-                try fileURL.getResourceValue(nil, forKey: NSURLIsHiddenKey)
+                let nill:(AutoreleasingUnsafeMutablePointer<AnyObject?>)? = nil
+                try (fileURL as NSURL).getResourceValue(nill!, forKey: URLResourceKey.isHiddenKey)
             } catch _ {
             }
-            fileItemArr.addObject(fileURL)
+            fileItemArr.add(fileURL)
         }
         
         documents?.removeAllObjects()
-        documents?.addObjectsFromArray(fileItemArr as [AnyObject])
+        documents?.addObjects(from: fileItemArr as [AnyObject])
         
         metadataQuery?.enableUpdates()
         
@@ -134,7 +135,7 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     
     func createSystemSCaner()
     {
-        let captureDevice = AVCaptureDevice.defaultDeviceWithMediaType(AVMediaTypeVideo)
+        let captureDevice = AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo)
         var error: NSError?
         var captureInput: AnyObject?
         do {
@@ -172,25 +173,25 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         }
         
         
-        captureMetadataOutput.setMetadataObjectsDelegate(self, queue: dispatch_get_main_queue())
+        captureMetadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
         captureMetadataOutput.metadataObjectTypes = [AVMetadataObjectTypeQRCode,AVMetadataObjectTypeEAN13Code,AVMetadataObjectTypeEAN8Code,AVMetadataObjectTypeCode128Code]
         
         
         videoPreviewLayer = CaptureVideoLayer(session: captureSession)
         videoPreviewLayer?.videoGravity = AVLayerVideoGravityResizeAspectFill
         videoPreviewLayer?.frame = view.bounds
-        videoPreviewLayer?.backgroundColor = UIColor.whiteColor().CGColor
+        videoPreviewLayer?.backgroundColor = UIColor.white.cgColor
         view.layer.addSublayer(videoPreviewLayer!)
         
         
         
-        qrCodeFrameView = UIView(frame: CGRectMake(kLineMinX, kLineMinY, kReaderWidth, kReaderWidth))
-        qrCodeFrameView?.layer.borderColor = UIColor.whiteColor().CGColor
+        qrCodeFrameView = UIView(frame: CGRect(x: kLineMinX, y: kLineMinY, width: kReaderWidth, height: kReaderWidth))
+        qrCodeFrameView?.layer.borderColor = UIColor.white.cgColor
         qrCodeFrameView?.layer.borderWidth = 2.0
         qrCodeFrameView?.addSubview(scanLabel!)
         view.addSubview(qrCodeFrameView!)
         
-        captureMetadataOutput.rectOfInterest = CGRectMake(kLineMinY / kDeviceHeigth, kLineMinX / kDeviceWidth, kReaderWidth/kDeviceHeigth, kReaderWidth/kDeviceWidth)
+        captureMetadataOutput.rectOfInterest = CGRect(x: kLineMinY / kDeviceHeigth, y: kLineMinX / kDeviceWidth, width: kReaderWidth/kDeviceHeigth, height: kReaderWidth/kDeviceWidth)
         
         
         loadUI()
@@ -202,25 +203,25 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     func createThirdScaner()
     {
         
-        scanImageView.hidden = false
+        scanImageView.isHidden = false
         
         view.addSubview(scanImageView)
         let zbarReader = ZBarReaderController()
         zbarReader.readerDelegate = self
 
-        if ZBarReaderController.isSourceTypeAvailable(UIImagePickerControllerSourceType.PhotoLibrary)
+        if ZBarReaderController.isSourceTypeAvailable(UIImagePickerControllerSourceType.photoLibrary)
         {
-            zbarReader.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
+            zbarReader.sourceType = UIImagePickerControllerSourceType.photoLibrary
             
         }
         
         zbarReader.scanner.setSymbology(ZBAR_I25, config: ZBAR_CFG_ENABLE, to: 0)
-        self.presentViewController(zbarReader, animated: true, completion: nil)
+        self.present(zbarReader, animated: true, completion: nil)
     }
 
     lazy var scanImageView: UIImageView =
     {
-        var scanImageView = UIImageView(frame: CGRectMake(kLineMinX, kLineMinY, kReaderWidth, kReaderHeight))
+        var scanImageView = UIImageView(frame: CGRect(x: kLineMinX, y: kLineMinY, width: kReaderWidth, height: kReaderHeight))
         return scanImageView
         
         }()
@@ -228,59 +229,59 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     func loadUI()
     {
         
-        let topView = UIView(frame: CGRectMake(0, 0, kDeviceWidth, kLineMinY))
-        topView.backgroundColor = UIColor.blackColor()
+        let topView = UIView(frame: CGRect(x: 0, y: 0, width: kDeviceWidth, height: kLineMinY))
+        topView.backgroundColor = UIColor.black
         topView.alpha = kAlpha
         view.addSubview(topView)
         
-        let leftView = UIView(frame: CGRectMake(0, CGRectGetMaxY(topView.frame), (kDeviceWidth - kReaderWidth)/2, kReaderHeight))
-        leftView.backgroundColor = UIColor.blackColor()
+        let leftView = UIView(frame: CGRect(x: 0, y: topView.frame.maxY, width: (kDeviceWidth - kReaderWidth)/2, height: kReaderHeight))
+        leftView.backgroundColor = UIColor.black
         leftView.alpha = kAlpha
         view.addSubview(leftView)
         
-        let rightView = UIView(frame: CGRectMake(kDeviceWidth - (kDeviceWidth - kReaderWidth)/2, CGRectGetMaxY(topView.frame), (kDeviceWidth - kReaderWidth)/2, kReaderHeight))
-        rightView.backgroundColor = UIColor.blackColor()
+        let rightView = UIView(frame: CGRect(x: kDeviceWidth - (kDeviceWidth - kReaderWidth)/2, y: topView.frame.maxY, width: (kDeviceWidth - kReaderWidth)/2, height: kReaderHeight))
+        rightView.backgroundColor = UIColor.black
         rightView.alpha = kAlpha
         view.addSubview(rightView)
         
         
-        let bottomView = UIView(frame: CGRectMake(0, CGRectGetMaxY(leftView.frame), kDeviceWidth, kDeviceHeigth - CGRectGetMaxY(leftView.frame)))
-        bottomView.backgroundColor = UIColor.blackColor()
+        let bottomView = UIView(frame: CGRect(x: 0, y: leftView.frame.maxY, width: kDeviceWidth, height: kDeviceHeigth - leftView.frame.maxY))
+        bottomView.backgroundColor = UIColor.black
         bottomView.alpha = kAlpha
         view.addSubview(bottomView)
         
-        let tips = UILabel(frame: CGRectMake(0, bottomView.frame.origin.y + 30, kDeviceWidth, 40))
+        let tips = UILabel(frame: CGRect(x: 0, y: bottomView.frame.origin.y + 30, width: kDeviceWidth, height: 40))
         tips.text = "请将二维码/条形码放入扫描框内,即可自行扫描"
-        tips.textColor = UIColor.whiteColor()
-        tips.font = UIFont.boldSystemFontOfSize(12)
-        tips.textAlignment = .Center
+        tips.textColor = UIColor.white
+        tips.font = UIFont.boldSystemFont(ofSize: 12)
+        tips.textAlignment = .center
         view.addSubview(tips)
         
-        messageLabel = UILabel(frame: CGRectMake(0, CGRectGetMaxY(tips.frame) + 10,kDeviceWidth, 40))
-        messageLabel?.font = UIFont.boldSystemFontOfSize(12)
+        messageLabel = UILabel(frame: CGRect(x: 0, y: tips.frame.maxY + 10,width: kDeviceWidth, height: 40))
+        messageLabel?.font = UIFont.boldSystemFont(ofSize: 12)
         messageLabel?.text = "我的二维码"
-        messageLabel?.textAlignment = NSTextAlignment.Center
-        messageLabel?.textColor = UIColor.greenColor()
-        messageLabel?.userInteractionEnabled = true
-        messageLabel?.addGestureRecognizer(UITapGestureRecognizer(target: self, action: "showDetail1"))
+        messageLabel?.textAlignment = NSTextAlignment.center
+        messageLabel?.textColor = UIColor.green
+        messageLabel?.isUserInteractionEnabled = true
+        messageLabel?.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(ViewController.showDetail1)))
         view.addSubview(messageLabel!)
         
-        let startScanButton = UIButton(frame: CGRectMake(0, 0, 120, 30))
+        let startScanButton = UIButton(frame: CGRect(x: 0, y: 0, width: 120, height: 30))
         startScanButton.tag = 1000
-        startScanButton.center = CGPointMake(self.view.bounds.width*0.5, CGRectGetMaxY(messageLabel!.frame)+20)
-        startScanButton.setTitle("开始扫描", forState: .Normal)
-        startScanButton.setTitle("正在扫描中...", forState: .Selected)
-        startScanButton.titleLabel?.font = UIFont.systemFontOfSize(15)
-        startScanButton.addTarget(self, action: "startRuning", forControlEvents: UIControlEvents.TouchUpInside)
+        startScanButton.center = CGPoint(x: self.view.bounds.width*0.5, y: messageLabel!.frame.maxY+20)
+        startScanButton.setTitle("开始扫描", for: UIControlState())
+        startScanButton.setTitle("正在扫描中...", for: .selected)
+        startScanButton.titleLabel?.font = UIFont.systemFont(ofSize: 15)
+        startScanButton.addTarget(self, action: #selector(ViewController.startRuning), for: UIControlEvents.touchUpInside)
         view.addSubview(startScanButton)
         
-        scanLabel?.frame = CGRectMake(0, 0, kReaderWidth, 1)
-        scanLabel?.backgroundColor = UIColor.greenColor()
-        scanLabel?.layer.shadowColor = UIColor.greenColor().CGColor
+        scanLabel?.frame = CGRect(x: 0, y: 0, width: kReaderWidth, height: 1)
+        scanLabel?.backgroundColor = UIColor.green
+        scanLabel?.layer.shadowColor = UIColor.green.cgColor
         scanLabel?.layer.shadowOpacity = 1.0
         scanLabel?.layer.shadowRadius = 5.0
-        scanLabel?.layer.shadowOffset = CGSizeMake(0, -5)
-        scanLabel?.hidden = true
+        scanLabel?.layer.shadowOffset = CGSize(width: 0, height: -5)
+        scanLabel?.isHidden = true
     }
     
     
@@ -297,7 +298,7 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         self.navigationController?.pushViewController(scanDetail, animated: true)
     }
     
-    func captureOutput(captureOutput: AVCaptureOutput!, didOutputMetadataObjects metadataObjects: [AnyObject]!, fromConnection connection: AVCaptureConnection!) {
+    func captureOutput(_ captureOutput: AVCaptureOutput!, didOutputMetadataObjects metadataObjects: [Any]!, from connection: AVCaptureConnection!) {
         
         if metadataObjects == nil || metadataObjects.count == 0
         {
@@ -310,7 +311,7 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         
         if metadataObj.type == AVMetadataObjectTypeQRCode
         {
-            let barCodeObject = videoPreviewLayer?.transformedMetadataObjectForMetadataObject(metadataObj as AVMetadataMachineReadableCodeObject) as! AVMetadataMachineReadableCodeObject
+            let barCodeObject = videoPreviewLayer?.transformedMetadataObject(for: metadataObj as AVMetadataMachineReadableCodeObject) as! AVMetadataMachineReadableCodeObject
        
             if metadataObj.stringValue != nil
             {
@@ -330,14 +331,14 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         
     }
         
-    func insertItem(aString:String?)
+    func insertItem(_ aString:String?)
     {
         if aString == nil {return}
         
         messageLabel?.text = aString
         stopRuning()
-        let scanItem: ScanItem? =  ScanItem.insertShopIncomeItem(nil, inManagedObjectContext: stack.managedContext)
-        scanItem?.scanDate = dateFormatter?.stringFromDate(NSDate())
+        let scanItem: ScanItem? =  ScanItem.insertShopIncomeItem(nil, in: stack.managedContext)
+        scanItem?.scanDate = dateFormatter?.string(from: Date())
         scanItem?.scanDetail = aString
         do {
             try stack.managedContext.save()
@@ -349,13 +350,13 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         
     }
     
-    func addDocument()->NSURL?
+    func addDocument()->URL?
     {
         
 //        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), { () -> Void in
-            var newFileURL = NSFileManager.defaultManager().URLForUbiquityContainerIdentifier(nil)
-            newFileURL = newFileURL?.URLByAppendingPathComponent("documents", isDirectory: true)
-            newFileURL = newFileURL?.URLByAppendingPathComponent(self.newUntitledDocumentName(), isDirectory: false)
+            var newFileURL = FileManager.default.url(forUbiquityContainerIdentifier: nil)
+            newFileURL = newFileURL?.appendingPathComponent("documents", isDirectory: true)
+            newFileURL = newFileURL?.appendingPathComponent(self.newUntitledDocumentName(), isDirectory: false)
             
 //            dispatch_async(dispatch_get_main_queue(), { () -> Void in
             
@@ -381,11 +382,11 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
             newTxtName = String(format: "scan %d.%@", txtCount, filenameExtension)
             var nameExists = false
             
-            for fileURL in documentArr as! [NSURL]
+            for fileURL in documentArr as! [URL]
             {
                 if fileURL.lastPathComponent == newTxtName
                 {
-                    txtCount++
+                    txtCount += 1
                     nameExists = true
                     break
                 }
@@ -401,9 +402,9 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     }
     
     
-    lazy var dateFormatter: NSDateFormatter? = {
+    lazy var dateFormatter: DateFormatter? = {
       
-        var dateFormatter = NSDateFormatter()
+        var dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
     
        return  dateFormatter
@@ -416,34 +417,34 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         captureSession!.stopRunning()
         isStopScan = true
         let button = view.viewWithTag(1000) as! UIButton
-        button.userInteractionEnabled = true
-        button.selected = false
-        scanLabel?.hidden = true
+        button.isUserInteractionEnabled = true
+        button.isSelected = false
+        scanLabel?.isHidden = true
         
     }
     func startRuning()
     {
         let button = view.viewWithTag(1000) as! UIButton
-        button.selected = true
-        button.userInteractionEnabled = false
+        button.isSelected = true
+        button.isUserInteractionEnabled = false
         captureSession?.startRunning()
-        scanLabel?.hidden = false
+        scanLabel?.isHidden = false
         messageLabel?.text = "我的二维码"
-        scanImageView.hidden = true
+        scanImageView.isHidden = true
         scanImageView.image = nil
         
     }
     
-    func animationView(lable: UILabel)
+    func animationView(_ lable: UILabel)
     {
         
         
         let animateSpeed = 5 / kReaderHeight
-        let duration =  NSTimeInterval(animateSpeed * kReaderHeight)
+        let duration =  TimeInterval(animateSpeed * kReaderHeight)
         
-        UIView.animateWithDuration(duration, delay: 0, options: UIViewAnimationOptions.CurveLinear, animations: { () -> Void in
+        UIView.animate(withDuration: duration, delay: 0, options: UIViewAnimationOptions.curveLinear, animations: { () -> Void in
             
-            lable.frame.origin.y = CGRectGetHeight(lable.superview!.frame) - 1
+            lable.frame.origin.y = lable.superview!.frame.height - 1
             
             }, completion: { _ in
                 
@@ -469,11 +470,11 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
             let point: CGPoint = square[index]
             if index % 3 == 0
             {
-                path.moveToPoint(point)
+                path.move(to: point)
             }
             else if index % 3 == 1
             {
-                path.addLineToPoint(point)
+                path.addLine(to: point)
             }else
             {
                 continue
@@ -484,58 +485,58 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
             {
             case 0:
                 
-                let label = UILabel(frame: CGRectMake(0, 0, w, h))
+                let label = UILabel(frame: CGRect(x: 0, y: 0, width: w, height: h))
                 label.frame.origin = point
-                label.backgroundColor = UIColor.greenColor()
+                label.backgroundColor = UIColor.green
                 view.addSubview(label)
                 
             case 1:
                 
-                let label = UILabel(frame: CGRectMake(0, 0, h, w))
+                let label = UILabel(frame: CGRect(x: 0, y: 0, width: h, height: w))
                 label.frame.origin = point
-                label.backgroundColor = UIColor.greenColor()
+                label.backgroundColor = UIColor.green
                 view.addSubview(label)
                 
             case 3:
                 
-                let label = UILabel(frame: CGRectMake(0, 0, h, w))
+                let label = UILabel(frame: CGRect(x: 0, y: 0, width: h, height: w))
                 label.frame.origin = point
-                label.backgroundColor = UIColor.greenColor()
+                label.backgroundColor = UIColor.green
                 view.addSubview(label)
                 
             case 4:
                 
-                let label = UILabel(frame: CGRectMake(0, 0, w, h))
+                let label = UILabel(frame: CGRect(x: 0, y: 0, width: w, height: h))
                 label.frame.origin = point
-                label.backgroundColor = UIColor.greenColor()
+                label.backgroundColor = UIColor.green
                 view.addSubview(label)
                 
             case 6:
                 
-                let label = UILabel(frame: CGRectMake(0, 0, w, h))
+                let label = UILabel(frame: CGRect(x: 0, y: 0, width: w, height: h))
                 label.frame.origin = point
-                label.backgroundColor = UIColor.greenColor()
+                label.backgroundColor = UIColor.green
                 view.addSubview(label)
                 
             case 7:
                 
-                let label = UILabel(frame: CGRectMake(0, 0, h, w))
+                let label = UILabel(frame: CGRect(x: 0, y: 0, width: h, height: w))
                 label.frame.origin = point
-                label.backgroundColor = UIColor.greenColor()
+                label.backgroundColor = UIColor.green
                 view.addSubview(label)
                 
             case 9:
                 
-                let label = UILabel(frame: CGRectMake(0, 0, h, w))
+                let label = UILabel(frame: CGRect(x: 0, y: 0, width: h, height: w))
                 label.frame.origin = point
-                label.backgroundColor = UIColor.greenColor()
+                label.backgroundColor = UIColor.green
                 view.addSubview(label)
                 
             case 10:
                 
-                let label = UILabel(frame: CGRectMake(0, 0, w, h))
+                let label = UILabel(frame: CGRect(x: 0, y: 0, width: w, height: h))
                 label.frame.origin = point
-                label.backgroundColor = UIColor.greenColor()
+                label.backgroundColor = UIColor.green
                 view.addSubview(label)
                 
             default: break
@@ -551,11 +552,11 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
 
 extension ViewController: ZBarReaderDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate
 {
-    func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         
         stopRuning()
         
-        let results: AnyObject? = info[ZBarReaderControllerResults]
+        let results: AnyObject? = info[ZBarReaderControllerResults] as AnyObject?
 
         var symbol: ZBarSymbol?
         for symbol1 in results as! [ZBarSymbol]
@@ -567,14 +568,14 @@ extension ViewController: ZBarReaderDelegate,UIImagePickerControllerDelegate,UIN
         insertItem(symbol?.data)
         scanImageView.image = (info as NSDictionary)[UIImagePickerControllerOriginalImage] as? UIImage
         
-        picker.dismissViewControllerAnimated(true, completion: nil)
+        picker.dismiss(animated: true, completion: nil)
     }
     
     
     
-    func readerControllerDidFailToRead(reader: ZBarReaderController!, withRetry retry: Bool) {
+    func readerControllerDidFail(toRead reader: ZBarReaderController!, withRetry retry: Bool) {
        
-        reader.dismissViewControllerAnimated(true, completion: nil)
+        reader.dismiss(animated: true, completion: nil)
     }
     
 }

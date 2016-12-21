@@ -10,27 +10,27 @@ import UIKit
 
 protocol MKMasonryViewLayoutDelegate
 {
-    func collectionView(collectionView:UICollectionView, layout: ScanViewLayout, heightForItemAtIndexPath indexPath:NSIndexPath)->CGFloat
+    func collectionView(_ collectionView:UICollectionView, layout: ScanViewLayout, heightForItemAtIndexPath indexPath:IndexPath)->CGFloat
 }
 
 class ScanViewLayout: UICollectionViewLayout {
    
-    private var lastYValueForColumn = Dictionary<Int,AnyObject>()
-    private var layoutInfo = Dictionary<NSObject,AnyObject>()
-    private var indexPath: NSIndexPath?
-    private var animator: UIDynamicAnimator?
-    private var behavior: UIAttachmentBehavior?
-    private var deleteIndexPaths: NSMutableArray?
-    private var insertIndexPaths: NSMutableArray?
+    fileprivate var lastYValueForColumn = Dictionary<Int,AnyObject>()
+    fileprivate var layoutInfo = Dictionary<IndexPath,AnyObject>()
+    fileprivate var indexPath: IndexPath?
+    fileprivate var animator: UIDynamicAnimator?
+    fileprivate var behavior: UIAttachmentBehavior?
+    fileprivate var deleteIndexPaths: NSMutableArray?
+    fileprivate var insertIndexPaths: NSMutableArray?
     
     var numberOfColumn: NSInteger!
     var interItemSpacing: CGFloat!
     var delegate: MKMasonryViewLayoutDelegate?
     var isDrag: Bool = false
     
-    override func prepareLayout() {
+    override func prepare() {
         
-        super.prepareLayout()
+        super.prepare()
         
         lastYValueForColumn = [:]
         layoutInfo  = [:]
@@ -41,21 +41,21 @@ class ScanViewLayout: UICollectionViewLayout {
         let availableSpaceExcludingPadding: CGFloat = fullWidth! - interItemSpacing * (CGFloat(numberOfColumn!) + 1)
         let itemWith: CGFloat = availableSpaceExcludingPadding / CGFloat(numberOfColumn)
         
-        let numSections = self.collectionView?.numberOfSections()
+        let numSections = self.collectionView?.numberOfSections
         
         if let numSections = numSections
         {
             for section in 0..<numSections
             {
-                let numItems = self.collectionView?.numberOfItemsInSection(section)
+                let numItems = self.collectionView?.numberOfItems(inSection: section)
                 
                 if let numItems = numItems
                 {
                     for itemIndex in 0..<numItems
                     {
-                        let indexPath = NSIndexPath(forItem: itemIndex, inSection: section)
+                        let indexPath = IndexPath(item: itemIndex, section: section)
                         
-                        let itemAttributes = UICollectionViewLayoutAttributes(forCellWithIndexPath: indexPath)
+                        let itemAttributes = UICollectionViewLayoutAttributes(forCellWith: indexPath)
                         let x = interItemSpacing + (interItemSpacing + itemWith) * CGFloat(currentColumn)
                         
                         var y: CGFloat = 0
@@ -67,12 +67,12 @@ class ScanViewLayout: UICollectionViewLayout {
                         
                         
                         let height: CGFloat = (self.collectionView?.delegate as! MKMasonryViewLayoutDelegate).collectionView(collectionView!, layout: self, heightForItemAtIndexPath: indexPath)
-                        itemAttributes.frame = CGRectMake(x, y, itemWith, height)
+                        itemAttributes.frame = CGRect(x: x, y: y, width: itemWith, height: height)
                         y += height
                         y += interItemSpacing
                         
-                        lastYValueForColumn[currentColumn] = y
-                        currentColumn++
+                        lastYValueForColumn[currentColumn] = y as AnyObject?
+                        currentColumn += 1
                         if currentColumn == numberOfColumn
                         {
                             currentColumn = 0
@@ -85,7 +85,7 @@ class ScanViewLayout: UICollectionViewLayout {
         }
     }
     
-    override func collectionViewContentSize() -> CGSize {
+    override var collectionViewContentSize : CGSize {
         
         
         var currentColumn = 0
@@ -103,34 +103,34 @@ class ScanViewLayout: UICollectionViewLayout {
             {
                 maxHeight = height
             }
-            currentColumn++
+            currentColumn += 1
         
         } while (currentColumn < numberOfColumn)
         
-        return CGSizeMake(self.collectionView!.bounds.width, maxHeight)
+        return CGSize(width: self.collectionView!.bounds.width, height: maxHeight)
     }
     
-    override func layoutAttributesForElementsInRect(rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
+    override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
         
      
             let allAttributes = NSMutableArray(capacity: self.layoutInfo.count)
 
             for (indexPath,attributes) in layoutInfo {
-                if CGRectIntersectsRect(rect, attributes.frame) {
+                if rect.intersects(attributes.frame) {
                     if let selectIndexPath = self.indexPath {
-                        if !selectIndexPath.isEqual(indexPath) {
-                            allAttributes.addObject(attributes)
+                        if selectIndexPath != indexPath as! IndexPath {
+                            allAttributes.add(attributes)
                         }
                     }
                     else {
-                        allAttributes.addObject(attributes)
+                        allAttributes.add(attributes)
                     }
                 }
             }
         
            if let selectIndexPath = self.indexPath
            {
-             allAttributes.addObjectsFromArray(self.animator!.itemsInRect(rect))
+             allAttributes.addObjects(from: self.animator!.items(in: rect))
             }
             
             print(allAttributes.count)
@@ -200,7 +200,7 @@ class ScanViewLayout: UICollectionViewLayout {
 //        deleteIndexPaths = nil
 //    }
     
-    func updateDragLocation(location: CGPoint)
+    func updateDragLocation(_ location: CGPoint)
     {
         self.behavior?.anchorPoint = location
     }
@@ -216,7 +216,7 @@ class ScanViewLayout: UICollectionViewLayout {
     }
     
     
-    func startDraggingIndexPath(indexPath indexPath: NSIndexPath, fromPoint point: CGPoint)
+    func startDraggingIndexPath(indexPath: IndexPath, fromPoint point: CGPoint)
     {
         isDrag = true
         

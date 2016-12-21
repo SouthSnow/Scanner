@@ -12,14 +12,14 @@ let reuseIdentifier = "Cell"
 
 class ScanDetailCollectionViewController: UICollectionViewController, MKMasonryViewLayoutDelegate, UIGestureRecognizerDelegate {
 
-    var fetchResultsController: NSFetchedResultsController?
+    var fetchResultsController: NSFetchedResultsController<NSFetchRequestResult>?
     var managedObjectContext: NSManagedObjectContext?
     var stack: PersistentStack!
 
     
     var cellCount:Int = 10
 
-    var appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+    var appDelegate = UIApplication.shared.delegate as! AppDelegate
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,9 +31,9 @@ class ScanDetailCollectionViewController: UICollectionViewController, MKMasonryV
         fetchResultsController = stack.fetchedResultsController
         fetchResultsController?.delegate = self
         
-        self.collectionView!.registerClass(ScanCollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
+        self.collectionView!.register(ScanCollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
       
-        self.collectionView?.backgroundColor = UIColor.whiteColor()
+        self.collectionView?.backgroundColor = UIColor.white
        
         var error: NSError?
         do {
@@ -44,48 +44,48 @@ class ScanDetailCollectionViewController: UICollectionViewController, MKMasonryV
        
 //        var longGesture = UILongPressGestureRecognizer(target: self, action: "handleLongPress:")
 //        self.collectionView?.addGestureRecognizer(longGesture)
-        let panGesture = UIPanGestureRecognizer(target: self, action: "handlePanGesture:")
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(ScanDetailCollectionViewController.handlePanGesture(_:)))
         self.collectionView?.addGestureRecognizer(panGesture)
         panGesture.delegate = self
         
         
     }
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         registerNotification()
     }
     
-    override func viewDidDisappear(animated: Bool) {
+    override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: NSPersistentStoreCoordinatorStoresWillChangeNotification, object: stack.managedContext.persistentStoreCoordinator)
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: NSPersistentStoreCoordinatorStoresDidChangeNotification, object: stack.managedContext.persistentStoreCoordinator)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.NSPersistentStoreCoordinatorStoresWillChange, object: stack.managedContext.persistentStoreCoordinator)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.NSPersistentStoreCoordinatorStoresDidChange, object: stack.managedContext.persistentStoreCoordinator)
     }
     
     func registerNotification()
     {
       
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "persistentStoreCoordinatorStoresWillChange:", name: NSPersistentStoreCoordinatorStoresWillChangeNotification, object: stack.managedContext.persistentStoreCoordinator)
+        NotificationCenter.default.addObserver(self, selector: #selector(ScanDetailCollectionViewController.persistentStoreCoordinatorStoresWillChange(_:)), name: NSNotification.Name.NSPersistentStoreCoordinatorStoresWillChange, object: stack.managedContext.persistentStoreCoordinator)
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "persistentStoreCoordinatorStoresDidChange:", name: NSPersistentStoreCoordinatorStoresDidChangeNotification, object: stack.managedContext.persistentStoreCoordinator)
+        NotificationCenter.default.addObserver(self, selector: #selector(ScanDetailCollectionViewController.persistentStoreCoordinatorStoresDidChange(_:)), name: NSNotification.Name.NSPersistentStoreCoordinatorStoresDidChange, object: stack.managedContext.persistentStoreCoordinator)
         
     }
     
-    func persistentStoreCoordinatorStoresWillChange(notification: NSNotification)
+    func persistentStoreCoordinatorStoresWillChange(_ notification: Notification)
     {
         if stack.managedContext.hasChanges
         {
-            let error: NSErrorPointer = nil
+            let error: NSErrorPointer? = nil
             do {
                 try stack.managedContext.save()
             } catch let error1 as NSError {
-                error.memory = error1
+                error??.pointee = error1
                 print("error saving \(error)")
             }
         }
     }
     
-    func persistentStoreCoordinatorStoresDidChange(notification: NSNotification)
+    func persistentStoreCoordinatorStoresDidChange(_ notification: Notification)
     {
         do {
             try fetchResultsController?.performFetch()
@@ -96,7 +96,7 @@ class ScanDetailCollectionViewController: UICollectionViewController, MKMasonryV
         
     }
     
-    override func numberOfSectionsInCollectionView(collectionView: UICollectionView) -> Int {
+    override func numberOfSections(in collectionView: UICollectionView) -> Int {
      
         
         if let sections = fetchResultsController?.sections
@@ -109,7 +109,7 @@ class ScanDetailCollectionViewController: UICollectionViewController, MKMasonryV
     }
 
 
-    override func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
       
         if let sections = fetchResultsController?.sections
         {
@@ -120,11 +120,11 @@ class ScanDetailCollectionViewController: UICollectionViewController, MKMasonryV
         return 0
     }
 
-    override func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        let cell: ScanCollectionViewCell = collectionView.dequeueReusableCellWithReuseIdentifier(reuseIdentifier, forIndexPath: indexPath) as! ScanCollectionViewCell
+    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell: ScanCollectionViewCell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! ScanCollectionViewCell
        
         
-        let scanItem = fetchResultsController?.objectAtIndexPath(indexPath) as! ScanItem
+        let scanItem = fetchResultsController?.object(at: indexPath) as! ScanItem
         
         cell.scanImageView.image = UIImage(named:"scan")
         cell.scanDetailLabel.text = scanItem.scanDetail
@@ -133,30 +133,30 @@ class ScanDetailCollectionViewController: UICollectionViewController, MKMasonryV
         return cell 
     }
 
-    func collectionView(collectionView: UICollectionView, layout: ScanViewLayout, heightForItemAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+    func collectionView(_ collectionView: UICollectionView, layout: ScanViewLayout, heightForItemAtIndexPath indexPath: IndexPath) -> CGFloat {
         
         return 60
     }
     
  
-    override func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        let scanItem = fetchResultsController?.objectAtIndexPath(indexPath) as! ScanItem
+        let scanItem = fetchResultsController?.object(at: indexPath) as! ScanItem
         if scanItem.scanDetail.hasPrefix("www") || scanItem.scanDetail.hasPrefix("http")
         {
-            UIApplication.sharedApplication().openURL(NSURL(string: scanItem.scanDetail!)!)
+            UIApplication.shared.openURL(URL(string: scanItem.scanDetail!)!)
         }
         
     }
 
     
     // MARK: UIGestrueRecognizerDelegate
-    func gestureRecognizer(gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWithGestureRecognizer otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
     }
     
     
-    func handlePanGesture(panGesture: UIPanGestureRecognizer)
+    func handlePanGesture(_ panGesture: UIPanGestureRecognizer)
     {
         
         let dragLayout = self.collectionView?.collectionViewLayout as! ScanViewLayout
@@ -164,9 +164,9 @@ class ScanDetailCollectionViewController: UICollectionViewController, MKMasonryV
         {
             return
         }
-        let point = panGesture.translationInView(self.collectionView!)
-        let locationPoint = panGesture.locationInView(self.collectionView!)
-        let indexpath: NSIndexPath? = self.collectionView!.indexPathForItemAtPoint(locationPoint)
+        let point = panGesture.translation(in: self.collectionView!)
+        let locationPoint = panGesture.location(in: self.collectionView!)
+        let indexpath: IndexPath? = self.collectionView!.indexPathForItem(at: locationPoint)
         if indexpath == nil
         {
             return
@@ -177,11 +177,11 @@ class ScanDetailCollectionViewController: UICollectionViewController, MKMasonryV
         {
            
 
-            if panGesture.state == UIGestureRecognizerState.Ended
+            if panGesture.state == UIGestureRecognizerState.ended
             {
                 
-                let item: ScanItem = self.fetchResultsController?.objectAtIndexPath(indexpath!) as! ScanItem
-                self.managedObjectContext!.deleteObject(item)
+                let item: ScanItem = self.fetchResultsController?.object(at: indexpath!) as! ScanItem
+                self.managedObjectContext!.delete(item)
                 do {
                     try self.managedObjectContext?.save()
                 } catch _ {
@@ -196,26 +196,26 @@ class ScanDetailCollectionViewController: UICollectionViewController, MKMasonryV
     }
     
     
-    func handleLongPress(longPress:UILongPressGestureRecognizer)
+    func handleLongPress(_ longPress:UILongPressGestureRecognizer)
     {
         let dragLayout = self.collectionView?.collectionViewLayout as! ScanViewLayout
-        let point = longPress.locationInView(self.collectionView)
-        let indexpath = self.collectionView?.indexPathForItemAtPoint(point)
+        let point = longPress.location(in: self.collectionView)
+        let indexpath = self.collectionView?.indexPathForItem(at: point)
         if indexpath == nil
         {
             return
         }
-        var cell = self.collectionView?.cellForItemAtIndexPath(indexpath!) as! ScanCollectionViewCell
+        var cell = self.collectionView?.cellForItem(at: indexpath!) as! ScanCollectionViewCell
         
         switch longPress.state
         {
-        case .Began:
+        case .began:
             dragLayout.startDraggingIndexPath(indexPath: indexpath!, fromPoint: point)
-        case .Ended:
+        case .ended:
             fallthrough
-        case .Cancelled:
+        case .cancelled:
             dragLayout.stopDrag()
-        case .Changed:
+        case .changed:
             dragLayout.updateDragLocation(point)
         default: break
             
@@ -236,22 +236,22 @@ class ScanDetailCollectionViewController: UICollectionViewController, MKMasonryV
 extension ScanDetailCollectionViewController: NSFetchedResultsControllerDelegate
 {
     
-    func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?){
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?){
 
-        if type == NSFetchedResultsChangeType.Delete
+        if type == NSFetchedResultsChangeType.delete
         {
             collectionView?.performBatchUpdates({[weak collectionView] () -> Void in
                 if let strongSelf = collectionView
                 {
-                    strongSelf.deleteItemsAtIndexPaths([indexPath!])
+                    strongSelf.deleteItems(at: [indexPath!])
                 }
             }, completion: nil)
         }
-        if type == NSFetchedResultsChangeType.Insert
+        if type == NSFetchedResultsChangeType.insert
         {
             collectionView?.performBatchUpdates({ () -> Void in
                 
-                self.collectionView?.insertItemsAtIndexPaths([indexPath!])
+                self.collectionView?.insertItems(at: [indexPath!])
                 
             }, completion: nil)
         }

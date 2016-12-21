@@ -18,7 +18,7 @@ class ScanDocument: UIDocument {
                 let oldString = scanDetail
                 self.scanDetail = newValue
                 self.undoManager.setActionName("scan change")
-                self.undoManager.registerUndoWithTarget(self, selector: "setScanDetail", object: oldString)
+                self.undoManager.registerUndo(withTarget: self, selector: "setScanDetail", object: oldString)
             }
             get {
                 
@@ -27,7 +27,7 @@ class ScanDocument: UIDocument {
     }
     
     
-    override func contentsForType(typeName: String) throws -> AnyObject {
+    override func contents(forType typeName: String) throws -> Any {
         let outError: NSError! = NSError(domain: "Migrator", code: 0, userInfo: nil)
         
         if let scanDetail = self.scanDetail
@@ -39,7 +39,7 @@ class ScanDocument: UIDocument {
             self.scanDetail = ""
         }
         
-        let data = self.scanDetail?.dataUsingEncoding(NSUTF8StringEncoding)
+        let data = self.scanDetail?.data(using: String.Encoding.utf8)
         if let value = data {
             return value
         }
@@ -48,10 +48,10 @@ class ScanDocument: UIDocument {
     }
     
     
-    override func loadFromContents(contents: AnyObject, ofType typeName: String?) throws {
+    override func load(fromContents contents: Any, ofType typeName: String?) throws {
         
         
-        if contents.length() > 0
+        if (contents as AnyObject).length() > 0
         {
             self.scanDetail = contents as? String
         }

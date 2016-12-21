@@ -27,18 +27,18 @@ class ScanCollectionViewCell: UICollectionViewCell {
     
     func setupUI()
     {
-        scanImageView = UIImageView(frame: CGRectMake(0, 10, 40, 40))
+        scanImageView = UIImageView(frame: CGRect(x: 0, y: 10, width: 40, height: 40))
         
-        scanDetailLabel = UILabel(frame: CGRectMake(CGRectGetMaxX(scanImageView.frame)+10, CGRectGetMinY(scanImageView.frame), UIScreen.mainScreen().bounds.width - CGRectGetMaxX(scanImageView.frame)-10, 30))
-        scanDetailLabel.textColor = UIColor.brownColor()
-        scanDetailLabel.font = UIFont.boldSystemFontOfSize(16)
-        scanDetailLabel.textAlignment = .Left
+        scanDetailLabel = UILabel(frame: CGRect(x: scanImageView.frame.maxX+10, y: scanImageView.frame.minY, width: UIScreen.main.bounds.width - scanImageView.frame.maxX-10, height: 30))
+        scanDetailLabel.textColor = UIColor.brown
+        scanDetailLabel.font = UIFont.boldSystemFont(ofSize: 16)
+        scanDetailLabel.textAlignment = .left
         
-        scanDateLabel = UILabel(frame: CGRectMake(CGRectGetMinX(scanDetailLabel.frame), CGRectGetMaxY(scanDetailLabel.frame), CGRectGetWidth(scanDetailLabel.frame), 20))
+        scanDateLabel = UILabel(frame: CGRect(x: scanDetailLabel.frame.minX, y: scanDetailLabel.frame.maxY, width: scanDetailLabel.frame.width, height: 20))
         
         scanDateLabel.textColor = scanDetailLabel.textColor
-        scanDateLabel.font = UIFont.boldSystemFontOfSize(12)
-        scanDateLabel.textAlignment = .Left
+        scanDateLabel.font = UIFont.boldSystemFont(ofSize: 12)
+        scanDateLabel.textAlignment = .left
         
         self.contentView.addSubview(scanImageView)
         self.contentView.addSubview(scanDetailLabel)
