@@ -311,7 +311,7 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         
         if metadataObj.type == AVMetadataObjectTypeQRCode
         {
-            let barCodeObject = videoPreviewLayer?.transformedMetadataObject(for: metadataObj as AVMetadataMachineReadableCodeObject) as! AVMetadataMachineReadableCodeObject
+            _ = videoPreviewLayer?.transformedMetadataObject(for: metadataObj as AVMetadataMachineReadableCodeObject) as! AVMetadataMachineReadableCodeObject
        
             if metadataObj.stringValue != nil
             {
@@ -345,7 +345,7 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         } catch _ {
         }
         
-        addDocument()
+        _ = addDocument()
 
         
     }

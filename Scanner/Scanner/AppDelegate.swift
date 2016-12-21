@@ -34,7 +34,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
 //        registerForiCloudNotifications()
 //        registerNotifications()
         
-        initCloud()
+        _ = initCloud()
         
         return true
     }
@@ -76,7 +76,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
     
     func registerNotifications()
     {
-        NotificationCenter.default.addObserver(self, selector: "contextDidSavePrivateQueueContext", name: NSNotification.Name.NSManagedObjectContextDidSave, object: persistentStack?.managedContext)
+        NotificationCenter.default.addObserver(self, selector: #selector(contextDidSavePrivateQueueContext), name: NSNotification.Name.NSManagedObjectContextDidSave, object: persistentStack?.managedContext)
     }
     
     func contextDidSavePrivateQueueContext(_ notification: Notification)

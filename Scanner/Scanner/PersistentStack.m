@@ -97,7 +97,6 @@
 - (void)persistentStoreDidImportUbiquitousContentChange:(NSNotification*)notification
 {
     [self.managedContext performBlock:^{
-       
         [self.managedContext mergeChangesFromContextDidSaveNotification:notification];
         NSLog(@"mergeChangesFromContextDidSaveNotification");
     }];
