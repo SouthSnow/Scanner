@@ -11,6 +11,7 @@ import Fabric
 import Crashlytics
 import CoreData
 import Foundation
+import JSPatchPlatform
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
@@ -33,6 +34,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
         rootVC.stack = self.stack
 //        registerForiCloudNotifications()
 //        registerNotifications()
+        
+        JSPatch.start(withAppKey: "6e328bd8f686f709")
+        JSPatch.sync()
         
         _ = initCloud()
         

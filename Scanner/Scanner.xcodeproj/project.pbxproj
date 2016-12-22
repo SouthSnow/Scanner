@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2CEBDC9B1E0AD21D00ABDC5A /* JSPatchPlatform.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CEBDC9A1E0AD21D00ABDC5A /* JSPatchPlatform.framework */; };
+		2CEBDC9E1E0AD24100ABDC5A /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CEBDC9D1E0AD24100ABDC5A /* JavaScriptCore.framework */; };
+		2CEBDCA01E0AD24C00ABDC5A /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CEBDC9F1E0AD24C00ABDC5A /* libz.tbd */; };
 		8387F75A1B034A9300443B5B /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8387F7591B034A9300443B5B /* WebViewController.swift */; };
 		83C48D811B033869000E7EBA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83C48D801B033869000E7EBA /* AppDelegate.swift */; };
 		83C48D831B033869000E7EBA /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83C48D821B033869000E7EBA /* ViewController.swift */; };
@@ -53,6 +56,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2CEBDC9A1E0AD21D00ABDC5A /* JSPatchPlatform.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = JSPatchPlatform.framework; sourceTree = "<group>"; };
+		2CEBDC9D1E0AD24100ABDC5A /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		2CEBDC9F1E0AD24C00ABDC5A /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		8387F7591B034A9300443B5B /* WebViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
 		83C48D7B1B033869000E7EBA /* Scanner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Scanner.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		83C48D7F1B033869000E7EBA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -123,7 +129,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2CEBDCA01E0AD24C00ABDC5A /* libz.tbd in Frameworks */,
+				2CEBDC9E1E0AD24100ABDC5A /* JavaScriptCore.framework in Frameworks */,
 				83FD9E161B21837900AFEED4 /* libiconv.dylib in Frameworks */,
+				2CEBDC9B1E0AD21D00ABDC5A /* JSPatchPlatform.framework in Frameworks */,
 				83FD9E141B21836900AFEED4 /* QuartzCore.framework in Frameworks */,
 				83FD9E121B21836100AFEED4 /* CoreVideo.framework in Frameworks */,
 				83F656241B26E0B700BD7DDA /* CloudKit.framework in Frameworks */,
@@ -145,6 +154,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2CEBDC9C1E0AD24100ABDC5A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				2CEBDC9F1E0AD24C00ABDC5A /* libz.tbd */,
+				2CEBDC9D1E0AD24100ABDC5A /* JavaScriptCore.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		830123BD1B2529C600E9CC10 /* Framework */ = {
 			isa = PBXGroup;
 			children = (
@@ -163,12 +181,14 @@
 		83C48D721B033869000E7EBA = {
 			isa = PBXGroup;
 			children = (
+				2CEBDC9A1E0AD21D00ABDC5A /* JSPatchPlatform.framework */,
 				83F656231B26E0B700BD7DDA /* CloudKit.framework */,
 				83F655F01B26A86C00BD7DDA /* MyPlayground.playground */,
 				83C48D7D1B033869000E7EBA /* Scanner */,
 				83C48D931B033869000E7EBA /* ScannerTests */,
 				83C48D7C1B033869000E7EBA /* Products */,
 				830123BD1B2529C600E9CC10 /* Framework */,
+				2CEBDC9C1E0AD24100ABDC5A /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
