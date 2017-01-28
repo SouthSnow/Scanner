@@ -136,19 +136,14 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     func createSystemSCaner()
     {
         let captureDevice = AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo)
-        var error: NSError?
         var captureInput: AnyObject?
         do {
             captureInput = try AVCaptureDeviceInput(device: captureDevice)
-        } catch let error1 as NSError {
-            error = error1
+        } catch let error as NSError {
+            print(error.localizedDescription)
             captureInput = nil
         }
-        if error != nil
-        {
-            print(error?.localizedDescription)
-            return
-        }
+  
         
         captureSession = AVCaptureSession()
         if captureSession!.canSetSessionPreset(AVCaptureSessionPreset1920x1080)
@@ -259,7 +254,7 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         
         messageLabel = UILabel(frame: CGRect(x: 0, y: tips.frame.maxY + 10,width: kDeviceWidth, height: 40))
         messageLabel?.font = UIFont.boldSystemFont(ofSize: 12)
-        messageLabel?.text = "我的二维码"
+        messageLabel?.text = "我的快递"
         messageLabel?.textAlignment = NSTextAlignment.center
         messageLabel?.textColor = UIColor.green
         messageLabel?.isUserInteractionEnabled = true
@@ -288,13 +283,14 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     func showDetail()
     {
         let scanDetail = ScanDetailTableViewController()
-
+//        let scanDetail = ExpressViewController()
         self.navigationController?.pushViewController(scanDetail, animated: true)
     }
     func showDetail1()
     {
-        let scanDetail = ScanDetailCollectionViewController(collectionViewLayout:ScanViewLayout())
-
+//        let scanDetail = ExpressViewController(collectionViewLayout:ScanViewLayout())
+        let scanDetail = ExpressViewController(expressno: self.messageLabel?.text)
+        
         self.navigationController?.pushViewController(scanDetail, animated: true)
     }
     

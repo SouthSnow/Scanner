@@ -6,3 +6,5 @@
 #import "PersistentStack.h"
 #import "ScanItem.h"
 #import "ZBarSDK.h"
+#import "IQKeyboardManager.h"
+#import <CommonCrypto/CommonCrypto.h>
