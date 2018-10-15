@@ -65,6 +65,7 @@ class ExpressViewController: UIViewController, PFLAlertable {
         label.backgroundColor = UIColor.lightGray
         label.font = UIFont.systemFont(ofSize: 14)
         label.height = 30
+        label.clearButtonMode = .whileEditing
         label.x = self.expressLabel.right
         label.width = UIScreen.main.bounds.width - label.x - 10 - 50 - 10
         label.centerY = 40

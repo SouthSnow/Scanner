@@ -145,6 +145,11 @@ class ScanDetailTableViewController: UITableViewController {
             let scanDetail = ExpressViewController(expressno: scanItem.scanDetail)
             self.navigationController?.pushViewController(scanDetail, animated: true)
         }
+        else {
+            let detailVc = ScanDetailViewController()
+            detailVc.content = scanItem.scanDetail
+            self.navigationController?.pushViewController(detailVc, animated: true)
+        }
     }
 
     

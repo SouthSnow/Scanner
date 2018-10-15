@@ -8,6 +8,7 @@
 
 #import "SWScanView.h"
 #import "UIView+PFL.h"
+@import AVFoundation.AVCaptureDevice;
 
 @interface SWScanView ()
 /** scanView */
@@ -36,6 +37,10 @@
 
 @implementation SWScanView
 
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
@@ -43,6 +48,7 @@
         [self setupSubviews];
         [self layoutIfNeeded];
         [self setNeedsLayout];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(closeTorchAction) name:UIApplicationDidEnterBackgroundNotification object:nil];
     }
     return self;
 }
@@ -123,7 +129,7 @@
     if (!_torchView) {
         _torchView = [UIControl new];
         [_torchView sizeToFit];
-        _torchView.size = CGSizeMake(44, 44);
+//        _torchView.size = CGSizeMake(44, 44);
         [_torchView addTarget:self action:@selector(changeTorchStatusAction:) forControlEvents:UIControlEventTouchUpInside];
         _torchView.hidden = YES;
         _torchView.backgroundColor = UIColor.clearColor;
@@ -150,9 +156,9 @@
         _torchTipLabel = [UILabel new];
         _torchTipLabel.textAlignment = NSTextAlignmentCenter;
         _torchTipLabel.font = [UIFont systemFontOfSize:15];
-        _torchTipLabel.textColor = UIColor.whiteColor;
+        _torchTipLabel.textColor = UIColor.clearColor;
         _torchTipLabel.top = self.torchBtn.bottom+14;
-//        _torchTipLabel.text = SWLocalizedString(@"SW30012");
+        _torchTipLabel.text = @" 00000  ";
         [_torchTipLabel sizeToFit];
     }
     return _torchTipLabel;
@@ -173,7 +179,7 @@
         _tipLabel.textAlignment = NSTextAlignmentCenter;
         _tipLabel.font = [UIFont systemFontOfSize:15];
         _tipLabel.textColor = UIColor.whiteColor;
-//        _tipLabel.text = SWLocalizedString(@"SW30007");
+//        _tipLabel.text = @"SW30007";
         [_tipLabel sizeToFit];
     }
     return _tipLabel;
@@ -183,6 +189,31 @@
 
 - (void)changeTorchStatusAction:(id)sender {
     !self.torchPressedAction?:self.torchPressedAction(self.torchBtn);
+    [self torchPressed];
+}
+
+- (void)torchPressed {
+    self.torchBtn.selected = !self.torchBtn.selected;
+    AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+    if (self.torchBtn.selected) {
+        [device lockForConfiguration:nil];
+        [device setTorchMode: AVCaptureTorchModeOn];//开
+        [device unlockForConfiguration];
+        self.torchTipLabel.text = @"SW30013";
+    }
+    else {
+        [device lockForConfiguration:nil];
+        [device setTorchMode: AVCaptureTorchModeOff];//关
+        [device unlockForConfiguration];
+        self.torchView.hidden = YES;
+        self.torchTipLabel.text = @"SW30012";
+    }
+}
+
+#pragma mark closeTorchAction
+- (void)closeTorchAction {
+    self.torchBtn.selected = NO;
+    self.torchView.hidden = YES;
 }
 
 

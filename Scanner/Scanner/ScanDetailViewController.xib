@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14313.18" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14283.14"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ScanDetailViewController" customModule="Scanner" customModuleProvider="target">
+            <connections>
+                <outlet property="contentLabel" destination="LrV-18-4rx" id="hWy-dR-Gdh"/>
+                <outlet property="titleLabel" destination="NhU-Or-Alu" id="RNr-BL-xAr"/>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fjj-ws-BeY">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="669"/>
+                    <subviews>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="252" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" text="已识别到的二维码信息" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NhU-Or-Alu">
+                            <rect key="frame" x="10" y="100" width="355" height="17"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                            <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LrV-18-4rx">
+                            <rect key="frame" x="10" y="142" width="355" height="183"/>
+                            <string key="text">00210236690530047762153883688371902284677379647970119688881671192231438988827759657922255609542407372873821020307474226722211202428496000274077386210236690530047762153883688371902284677379647970119688881671192231438988827759657922255609542407372873821020307474226722211202428496000274077386</string>
+                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                            <nil key="textColor"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GHY-np-yET">
+                            <rect key="frame" x="156.5" y="345" width="62" height="30"/>
+                            <state key="normal" title="复制内容"/>
+                            <connections>
+                                <action selector="copyAction:" destination="-1" eventType="touchUpInside" id="vsZ-vv-Wbx"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                    <constraints>
+                        <constraint firstItem="LrV-18-4rx" firstAttribute="top" secondItem="NhU-Or-Alu" secondAttribute="bottom" constant="25" id="K04-8B-r7H"/>
+                        <constraint firstAttribute="bottom" secondItem="GHY-np-yET" secondAttribute="bottom" constant="20" id="LMR-5t-BRE"/>
+                        <constraint firstItem="NhU-Or-Alu" firstAttribute="centerX" secondItem="fjj-ws-BeY" secondAttribute="centerX" id="Rk7-eA-RGm"/>
+                        <constraint firstItem="NhU-Or-Alu" firstAttribute="top" secondItem="fjj-ws-BeY" secondAttribute="top" constant="100" id="Szt-Lp-PyP"/>
+                        <constraint firstAttribute="trailing" secondItem="LrV-18-4rx" secondAttribute="trailing" constant="10" id="Wvg-KL-ep8"/>
+                        <constraint firstItem="GHY-np-yET" firstAttribute="centerX" secondItem="fjj-ws-BeY" secondAttribute="centerX" id="Zjm-eI-eJ5"/>
+                        <constraint firstItem="LrV-18-4rx" firstAttribute="leading" secondItem="fjj-ws-BeY" secondAttribute="leading" constant="10" id="oEt-gB-en3"/>
+                        <constraint firstItem="LrV-18-4rx" firstAttribute="centerX" secondItem="fjj-ws-BeY" secondAttribute="centerX" id="v2A-BU-0ny"/>
+                        <constraint firstItem="NhU-Or-Alu" firstAttribute="width" secondItem="fjj-ws-BeY" secondAttribute="width" constant="-20" id="whd-gm-Slh"/>
+                        <constraint firstItem="GHY-np-yET" firstAttribute="top" secondItem="LrV-18-4rx" secondAttribute="bottom" constant="20" id="yRc-wA-wdG"/>
+                    </constraints>
+                </scrollView>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="fjj-ws-BeY" firstAttribute="bottom" secondItem="i5M-Pr-FkT" secondAttribute="bottom" constant="2" id="FSh-28-Tb6"/>
+                <constraint firstAttribute="trailing" secondItem="fjj-ws-BeY" secondAttribute="trailing" id="Ti5-Hm-ekl"/>
+                <constraint firstItem="fjj-ws-BeY" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" id="b28-lr-WMd"/>
+                <constraint firstItem="fjj-ws-BeY" firstAttribute="width" secondItem="i5M-Pr-FkT" secondAttribute="width" id="mXZ-0V-Okd"/>
+                <constraint firstItem="fjj-ws-BeY" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="x6K-cy-083"/>
+            </constraints>
+        </view>
+    </objects>
+</document>
