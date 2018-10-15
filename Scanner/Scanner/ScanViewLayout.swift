@@ -16,7 +16,7 @@ protocol MKMasonryViewLayoutDelegate
 class ScanViewLayout: UICollectionViewLayout {
    
     fileprivate var lastYValueForColumn = Dictionary<Int,AnyObject>()
-    fileprivate var layoutInfo = Dictionary<IndexPath,AnyObject>()
+    fileprivate var layoutInfo = Dictionary<IndexPath,UICollectionViewLayoutAttributes>()
     fileprivate var indexPath: IndexPath?
     fileprivate var animator: UIDynamicAnimator?
     fileprivate var behavior: UIAttachmentBehavior?

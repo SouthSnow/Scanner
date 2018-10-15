@@ -31,14 +31,14 @@ class ExpressViewController: UIViewController, PFLAlertable {
     }()
     
     lazy var headView: UIView = {
-        let vi = UIView(frame: CGRect(x: 0, y: 64, width: UIScreen.main.bounds.width, height: 80))
+        let vi = UIView(frame: CGRect(x: 0, y: self.navigationController?.navigationBar.frame.maxY ?? 64, width: UIScreen.main.bounds.width, height: 80))
         vi.backgroundColor = .white
         return vi
     }()
     
     lazy var expressLabel: UILabel = {
         var label = UILabel(frame: .zero)
-        label.width = 80
+        label.width = 75
         label.height = 30
         label.centerY = 40//self.expressImageView.bottom
         label.centerX = label.width/2 + 10
@@ -57,13 +57,15 @@ class ExpressViewController: UIViewController, PFLAlertable {
     
     lazy var expressNoTextField: UITextField = {
         var label = UITextField(frame: .zero)
+        label.keyboardType = UIKeyboardType.numberPad
         label.layer.cornerRadius = 5
         label.layer.masksToBounds = true
+        label.borderStyle = .none
         label.backgroundColor = UIColor.lightGray
         label.font = UIFont.systemFont(ofSize: 14)
-        label.width = 150
         label.height = 30
         label.x = self.expressLabel.right
+        label.width = UIScreen.main.bounds.width - label.x - 10 - 50 - 10
         label.centerY = 40
         return label
     }()
@@ -75,7 +77,7 @@ class ExpressViewController: UIViewController, PFLAlertable {
         btn.setTitle("查询", for: .normal)
         btn.titleLabel?.font = UIFont.systemFont(ofSize: 14)
         btn.centerY = self.expressNoTextField.centerY
-        btn.x = self.expressNoTextField.right + 10
+        btn.right = self.view.width - 10
         btn.layer.cornerRadius = 5
         btn.layer.masksToBounds = true
         btn.layer.borderWidth = 1
@@ -86,7 +88,12 @@ class ExpressViewController: UIViewController, PFLAlertable {
     
     init(expressno: String?) {
         super.init(nibName: nil, bundle: nil)
+        self.title = "查询快递"
         self.expressNoTextField.text = expressno
+        if let expressno = expressno, !expressno.pureNumberString  {
+            self.expressNoTextField.text = nil
+            self.expressNoTextField.placeholder = "输入快递订单号"
+        }
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -126,6 +133,9 @@ class ExpressViewController: UIViewController, PFLAlertable {
     
     @objc fileprivate func queryExpress(btn: UIButton) {
         self.view.endEditing(true)
+        guard let _ = self.expressNoTextField.text else {
+            return
+        }
         btn.isEnabled = false
         let url = URL(string: BaseURL)
         var request = URLRequest(url: url!)
@@ -163,29 +173,39 @@ class ExpressViewController: UIViewController, PFLAlertable {
         let activity = UIActivityIndicatorView(activityIndicatorStyle: .gray)
         activity.startAnimating()
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        MBProgressHUD.showAdded(to: self.view, animated: true)
         URLSession.shared.dataTask(with: request) { (data, respose, error) in
-            btn.isEnabled = true
-            do {
-                activity.stopAnimating()
-                UIApplication.shared.isNetworkActivityIndicatorVisible = false
-                guard let data = data, let obj = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? [String:Any] else {return}
-                print("obj: ", obj)
-                
-                if let success = obj["Success"] as? Bool, success {}
-                else {
+            DispatchQueue.main.async(execute: {
+                MBProgressHUD.hide(for: self.view, animated: true)
+                btn.isEnabled = true
+                do {
+                    activity.stopAnimating()
+                    UIApplication.shared.isNetworkActivityIndicatorVisible = false
+                    guard let data = data, let obj = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? [String:Any] else {return}
+                    print("obj: ", obj)
+                    
+                    if let success = obj["Success"] as? Bool, success {
+                        guard let traces: Array<[String:String]> = obj["Traces"] as? Array else {return}
+                        let expressTraces = traces.map({ dic -> ExpressTrace in
+                            return ExpressTrace(dictionary:dic)
+                        })
+                        let expressTracesVc = ExpressTracesTableViewController()
+                        expressTracesVc.expressTraces = expressTraces
+                        expressTracesVc.title = self.expressLabel.text
+                        self.navigationController?.pushViewController(expressTracesVc, animated: true)
+                    }
+                    else {
+                        
+                    }
+                    
+                    if let reason = obj["Reason"] as? String {self.showMsg(reason)}
+                    
+                } catch let error as NSError {
+                    print("error: ", error.localizedDescription)
+                    activity.stopAnimating()
+                    UIApplication.shared.isNetworkActivityIndicatorVisible = false
                 }
-                
-                if let reason = obj["Reason"] as? String {
-                    DispatchQueue.main.async(execute: {
-                        self.showMsg(reason)
-                    })
-                }
-                
-            } catch let error as NSError {
-                print("error: ", error.localizedDescription)
-                activity.stopAnimating()
-                UIApplication.shared.isNetworkActivityIndicatorVisible = false
-            }
+            })
         }.resume()
     }
   
@@ -223,8 +243,16 @@ extension ExpressViewController: UITableViewDelegate, UITableViewDataSource {
         return 60
     }
     
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        return nil
+    }
+    
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        return nil
+    }
+    
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 0.001
+        return 5.001
     }
     
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {

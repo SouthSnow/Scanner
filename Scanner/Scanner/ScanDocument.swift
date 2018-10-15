@@ -51,7 +51,7 @@ class ScanDocument: UIDocument {
     override func load(fromContents contents: Any, ofType typeName: String?) throws {
         
         
-        if (contents as AnyObject).length() > 0
+        if (contents as! String).length > 0
         {
             self.scanDetail = contents as? String
         }

@@ -41,7 +41,7 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     var qrCodeFrameView: UIView?
     var messageLabel: UILabel?
     var scanLabel: UILabel? = UILabel()
-    var isStopScan: Bool? = false
+    var isStopScan: Bool = false
     var isAnimation: Bool? = false
     var managedObjectContext: NSManagedObjectContext?
     var fetchResultsController: NSFetchedResultsController<NSFetchRequestResult>?
@@ -65,7 +65,7 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         
         createSystemSCaner()
         
-        startRuning()
+//        startRuning()
         
         
     }
@@ -78,11 +78,18 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if !isStopScan {
+            startRuning()
+        }
+    }
+    
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         stopRuning()
-
+        isStopScan = false
     }
     
     
@@ -252,12 +259,14 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         tips.textAlignment = .center
         view.addSubview(tips)
         
-        messageLabel = UILabel(frame: CGRect(x: 0, y: tips.frame.maxY + 10,width: kDeviceWidth, height: 40))
+        messageLabel = UILabel(frame: CGRect(x: 5, y: tips.frame.maxY + 10,width: kDeviceWidth-10, height: 40))
         messageLabel?.font = UIFont.boldSystemFont(ofSize: 12)
         messageLabel?.text = "我的快递"
         messageLabel?.textAlignment = NSTextAlignment.center
         messageLabel?.textColor = UIColor.green
         messageLabel?.isUserInteractionEnabled = true
+        messageLabel?.numberOfLines = 2
+        messageLabel?.lineBreakMode = .byWordWrapping
         messageLabel?.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(ViewController.showDetail1)))
         view.addSubview(messageLabel!)
         
@@ -289,8 +298,13 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     func showDetail1()
     {
 //        let scanDetail = ExpressViewController(collectionViewLayout:ScanViewLayout())
-        let scanDetail = ExpressViewController(expressno: self.messageLabel?.text)
         
+        guard let detail = self.messageLabel?.text, detail.length > 0, detail.pureNumberString else {
+            showDetail()
+            return
+        }
+        
+        let scanDetail = ExpressViewController(expressno: self.messageLabel?.text)
         self.navigationController?.pushViewController(scanDetail, animated: true)
     }
     
@@ -411,7 +425,7 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     func stopRuning()
     {
         captureSession!.stopRunning()
-        isStopScan = true
+//        isStopScan = true
         let button = view.viewWithTag(1000) as! UIButton
         button.isUserInteractionEnabled = true
         button.isSelected = false
@@ -425,7 +439,7 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         button.isUserInteractionEnabled = false
         captureSession?.startRunning()
         scanLabel?.isHidden = false
-        messageLabel?.text = "我的二维码"
+        messageLabel?.text = "我的快递"
         scanImageView.isHidden = true
         scanImageView.image = nil
         
@@ -561,6 +575,13 @@ extension ViewController: ZBarReaderDelegate,UIImagePickerControllerDelegate,UIN
             break
         }
     
+        if let _ = symbol?.data {
+            self.isStopScan = true
+        }
+        else {
+            isStopScan = false
+        }
+        
         insertItem(symbol?.data)
         scanImageView.image = (info as NSDictionary)[UIImagePickerControllerOriginalImage] as? UIImage
         

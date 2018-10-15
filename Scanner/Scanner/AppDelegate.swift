@@ -11,7 +11,6 @@ import Fabric
 import Crashlytics
 import CoreData
 import Foundation
-import JSPatchPlatform
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
@@ -35,8 +34,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
 //        registerForiCloudNotifications()
 //        registerNotifications()
         
-        JSPatch.start(withAppKey: "6e328bd8f686f709")
-        JSPatch.sync()
+//        JSPatch.start(withAppKey: "6e328bd8f686f709")
+//        JSPatch.sync()
         
         _ = initCloud()
         
@@ -69,7 +68,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
         if fm.url(forUbiquityContainerIdentifier: nil) == nil
         {
             let alertView = UIAlertView(title: "提示", message: "iCloud不可用", delegate: self, cancelButtonTitle: "好的")
-            alertView .show()
+//            alertView .show()
             return false
         }
         
@@ -133,8 +132,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
         var teamID = "iCloud."
         var bundleID = Bundle.main.bundleIdentifier!
         var cloudRoot = "\(teamID)\(bundleID).sync"
-        let url = FileManager.default.url(forUbiquityContainerIdentifier: "\(cloudRoot)")
-        return url!
+        guard let url = FileManager.default.url(forUbiquityContainerIdentifier: "\(cloudRoot)") else {return URL.init(fileURLWithPath: "")}
+        return url
         
     }()
     
@@ -302,7 +301,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
         var localStoreOptions = self.storeOptions
         localStoreOptions[NSPersistentStoreRemoveUbiquitousMetadataOption] = true
         let newStore = try? persistentStoreCoordinator?.migratePersistentStore(oldStore!, to: cloudDirectory, options: localStoreOptions, withType: NSSQLiteStoreType)
-        
+        guard let _ = newStore else {
+            return
+        }
         reloadStore(newStore!)
     }
     

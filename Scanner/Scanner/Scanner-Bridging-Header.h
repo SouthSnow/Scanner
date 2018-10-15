@@ -8,3 +8,4 @@
 #import "ZBarSDK.h"
 #import "IQKeyboardManager.h"
 #import <CommonCrypto/CommonCrypto.h>
+#import "MBProgressHUD.h"

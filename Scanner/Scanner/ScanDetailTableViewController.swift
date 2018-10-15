@@ -30,6 +30,7 @@ class ScanDetailTableViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.title = "扫描记录"
         tableView.register(ScanTableViewCell.self, forCellReuseIdentifier: "reuseIdentifier")
         tableView.rowHeight = 60
         stack = appDelegate.stack
@@ -115,6 +116,10 @@ class ScanDetailTableViewController: UITableViewController {
         if scanItem.scanDetail.hasPrefix("http") || scanItem.scanDetail.hasPrefix("www")
         {
             UIApplication.shared.openURL(URL(string:scanItem.scanDetail)!)
+        }
+        else if let detail = scanItem.scanDetail, detail.length > 0, detail.pureNumberString {
+            let scanDetail = ExpressViewController(expressno: scanItem.scanDetail)
+            self.navigationController?.pushViewController(scanDetail, animated: true)
         }
     }
 
