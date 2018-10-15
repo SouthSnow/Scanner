@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import StoreKit
 
 
 
@@ -109,6 +110,11 @@ class ExpressViewController: UIViewController, PFLAlertable {
         self.headView.addSubview(self.queryBtn)
         self.view.addSubview(self.tableView)
         self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        if #available(iOS 10.3, *) {
+            SKStoreReviewController.requestReview()
+        } else {
+            // Fallback on earlier versions
+        }
     }
 
     

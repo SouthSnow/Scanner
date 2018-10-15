@@ -9,3 +9,6 @@
 #import "IQKeyboardManager.h"
 #import <CommonCrypto/CommonCrypto.h>
 #import "MBProgressHUD.h"
+#import "ScanCodeManager.h"
+#import "SWScanView.h"
+#import "SWDispatchTool.h"

@@ -8,6 +8,7 @@
 
 import UIKit
 import AVFoundation
+import StoreKit
 
 let square = [CGPoint(x: kLineMinX,y: kLineMinY),//0
     CGPoint(x: kLineMinX,y: kLineMinY),//1
@@ -42,12 +43,18 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     var messageLabel: UILabel?
     var scanLabel: UILabel? = UILabel()
     var isStopScan: Bool = false
+    var isFromAlbum = false
     var isAnimation: Bool? = false
     var managedObjectContext: NSManagedObjectContext?
     var fetchResultsController: NSFetchedResultsController<NSFetchRequestResult>?
     var metadataQuery: NSMetadataQuery?
     var documents: NSMutableArray?
     var stack: PersistentStack!
+    
+    var scanView: SWScanView!
+    
+    var scanner: ScanCodeManager! = nil
+    
     var coverView: UIView?{
         didSet
         {
@@ -58,15 +65,20 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.view.backgroundColor = UIColor.black
         self.title = "扫描/查询"
         self.navigationController?.navigationBar.barTintColor = UIColor.green//(red: 0.863, green: 0.243, blue: 0.051, alpha: 1.0)
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "扫描历史", style: UIBarButtonItemStyle.plain, target: self, action: #selector(ViewController.showDetail))
-        self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "相册", style: UIBarButtonItemStyle.plain, target: self, action: #selector(ViewController.createThirdScaner))
+        self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "相册", style: UIBarButtonItemStyle.plain, target: self, action: #selector(openAlbum))
         
         createSystemSCaner()
         
 //        startRuning()
-        
+        if #available(iOS 10.3, *) {
+            SKStoreReviewController.requestReview()
+        } else {
+            // Fallback on earlier versions
+        }
         
     }
     
@@ -80,8 +92,14 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        if isFromAlbum {
+            isFromAlbum = false
+            return
+        }
         if !isStopScan {
-            startRuning()
+            SWDispatchAfterDoSomething(0.5) {
+                self.startRuning()
+            }
         }
     }
     
@@ -93,8 +111,7 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     }
     
     
-    func setupAndStartQuery()
-    {
+    func setupAndStartQuery() {
         if let metadataQuery = metadataQuery
         {
             
@@ -140,8 +157,7 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     }
     
     
-    func createSystemSCaner()
-    {
+    func createSystemSCaner() {
         let captureDevice = AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo)
         var captureInput: AnyObject?
         do {
@@ -183,7 +199,7 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         videoPreviewLayer?.videoGravity = AVLayerVideoGravityResizeAspectFill
         videoPreviewLayer?.frame = view.bounds
         videoPreviewLayer?.backgroundColor = UIColor.white.cgColor
-        view.layer.addSublayer(videoPreviewLayer!)
+//        view.layer.addSublayer(videoPreviewLayer!)
         
         
         
@@ -191,19 +207,44 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         qrCodeFrameView?.layer.borderColor = UIColor.white.cgColor
         qrCodeFrameView?.layer.borderWidth = 2.0
         qrCodeFrameView?.addSubview(scanLabel!)
-        view.addSubview(qrCodeFrameView!)
+//        view.addSubview(qrCodeFrameView!)
         
         captureMetadataOutput.rectOfInterest = CGRect(x: kLineMinY / kDeviceHeigth, y: kLineMinX / kDeviceWidth, width: kReaderWidth/kDeviceHeigth, height: kReaderWidth/kDeviceWidth)
         
+
+        self.scanView = SWScanView(frame: self.view.bounds)
+        self.view.addSubview(self.scanView)
+        self.scanner = ScanCodeManager(presentedViewController: self, previewLayerView: self.scanView, rectOfInterest: CGRect(x: kLineMinX, y: kLineMinY, width: kReaderHeight, height: kReaderHeight), handler: { (str) in
+            if let str = str as? String {
+                self.insertItem(str)
+            }
+        }, torchHandler: { (open) -> Bool in
+            self.scanView.torchView.isHidden = !open
+            return self.scanView.torchBtn.isSelected
+        })
+        self.scanner.addInterest(withScanView: self.scanView)
+        self.scanner.startRun()
         
         loadUI()
-        animationView(scanLabel!)
+        //        animationView(scanLabel!)
         configureSquare()
+        self.scanView.bringSubview(toFront:self.scanView.torchView)
+
+
+
+    }
+    
+    @objc private func openAlbum() {
+        self.isFromAlbum = true
+        self.scanner.chooseQRCode { (image) in
+            guard let image = image else {return}
+            self.scanImageView.isHidden = false
+            self.scanImageView.image = image
+        }
     }
     
     
-    func createThirdScaner()
-    {
+    func createThirdScaner() {
         
         scanImageView.isHidden = false
         
@@ -221,16 +262,14 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         self.present(zbarReader, animated: true, completion: nil)
     }
 
-    lazy var scanImageView: UIImageView =
-    {
+    lazy var scanImageView: UIImageView = {
         var scanImageView = UIImageView(frame: CGRect(x: kLineMinX, y: kLineMinY, width: kReaderWidth, height: kReaderHeight))
+        self.view.addSubview(scanImageView)
         return scanImageView
         
         }()
     
-    func loadUI()
-    {
-        
+    func loadUI() {
         let topView = UIView(frame: CGRect(x: 0, y: 0, width: kDeviceWidth, height: kLineMinY))
         topView.backgroundColor = UIColor.black
         topView.alpha = kAlpha
@@ -289,14 +328,12 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     }
     
     
-    func showDetail()
-    {
+    func showDetail() {
         let scanDetail = ScanDetailTableViewController()
 //        let scanDetail = ExpressViewController()
         self.navigationController?.pushViewController(scanDetail, animated: true)
     }
-    func showDetail1()
-    {
+    func showDetail1() {
 //        let scanDetail = ExpressViewController(collectionViewLayout:ScanViewLayout())
         
         guard let detail = self.messageLabel?.text, detail.length > 0, detail.pureNumberString else {
@@ -424,9 +461,10 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
   
     func stopRuning()
     {
-        captureSession!.stopRunning()
+//        captureSession!.stopRunning()
 //        isStopScan = true
-        let button = view.viewWithTag(1000) as! UIButton
+        scanner.stopRun()
+        guard let button = view.viewWithTag(1000) as? UIButton else {return}
         button.isUserInteractionEnabled = true
         button.isSelected = false
         scanLabel?.isHidden = true
@@ -434,10 +472,11 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     }
     func startRuning()
     {
-        let button = view.viewWithTag(1000) as! UIButton
+        guard let button = view.viewWithTag(1000) as? UIButton else {return}
         button.isSelected = true
         button.isUserInteractionEnabled = false
-        captureSession?.startRunning()
+//        captureSession?.startRunning()
+        scanner.startRun()
         scanLabel?.isHidden = false
         messageLabel?.text = "我的快递"
         scanImageView.isHidden = true

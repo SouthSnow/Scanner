@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import StoreKit
 
 struct ExpressTrace {
     let AcceptStation: String
@@ -31,6 +32,11 @@ class ExpressTracesTableViewController: UITableViewController {
 //        self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: reuseIdentifier)
         tableView = UITableView(frame: UIScreen.main.bounds, style: .grouped)
         self.tableView.register(UINib.init(nibName: "ExpressTraceTableViewCell", bundle: nil), forCellReuseIdentifier: reuseIdentifier)
+        if #available(iOS 10.3, *) {
+            SKStoreReviewController.requestReview()
+        } else {
+            // Fallback on earlier versions
+        }
     }
 
     // MARK: - Table view data source

@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import SafariServices
+import StoreKit.SKStoreProductViewController
 
 class ScanDetailTableViewController: UITableViewController {
 
@@ -46,9 +48,17 @@ class ScanDetailTableViewController: UITableViewController {
             error = error1
         }
         tableView.reloadData()
+        
+        if #available(iOS 10.3, *) {
+            SKStoreReviewController.requestReview()
+        } else {
+            // Fallback on earlier versions
+        }
     }
 
-    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+    }
     
     func persistentStoreCoordinatorStoresWillChange(_ notification: Notification) {
         
@@ -113,9 +123,23 @@ class ScanDetailTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath){
         tableView.deselectRow(at: indexPath, animated: true)
         let scanItem = fetchResultsController?.object(at: indexPath) as! ScanItem
-        if scanItem.scanDetail.hasPrefix("http") || scanItem.scanDetail.hasPrefix("www")
-        {
-            UIApplication.shared.openURL(URL(string:scanItem.scanDetail)!)
+        if scanItem.scanDetail.hasPrefix("http") || scanItem.scanDetail.hasPrefix("www") {
+            guard let url = URL(string:scanItem.scanDetail) else {return}
+            if #available(iOS 9.0, *) {
+                let sfVc = SFSafariViewController(url: url, entersReaderIfAvailable: true)
+                self.present(sfVc, animated: true, completion: nil)
+            } else {
+//                if url.absoluteString.contains("://itunes.apple.com") {
+//                    let sksVc = SKStoreProductViewController(nibName: nil, bundle: nil)
+//                    sksVc.loadProduct(withParameters: [SKStoreProductParameterITunesItemIdentifier:"987975567"], completionBlock: nil)
+//                    sksVc.delegate = self
+//                    self.present(sksVc, animated: true, completion: nil)
+//                    return
+//                }
+//                else {
+                    UIApplication.shared.openURL(url)
+//                }
+            }
         }
         else if let detail = scanItem.scanDetail, detail.length > 0, detail.pureNumberString {
             let scanDetail = ExpressViewController(expressno: scanItem.scanDetail)
@@ -173,13 +197,15 @@ extension ScanDetailTableViewController: NSFetchedResultsControllerDelegate
             tableView.insertRows(at: [newIndexPath!], with: UITableViewRowAnimation.automatic)
             default: break
         }
-        
-        
     }
 }
 
 
-
+extension ScanDetailTableViewController: SKStoreProductViewControllerDelegate {
+    func productViewControllerDidFinish(_ viewController: SKStoreProductViewController) {
+        viewController.dismiss(animated: true, completion: nil)
+    }
+}
 
 
 

@@ -69,6 +69,13 @@
 		8645FBA8217395DC0080D74A /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 8645FBA4217395DC0080D74A /* MBProgressHUD.m */; };
 		8645FBA9217395DC0080D74A /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 8645FBA5217395DC0080D74A /* LICENSE */; };
 		8645FBAA217395DC0080D74A /* README.mdown in Resources */ = {isa = PBXBuildFile; fileRef = 8645FBA7217395DC0080D74A /* README.mdown */; };
+		8645FBB22174409A0080D74A /* SWAVSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8645FBAC2174409A0080D74A /* SWAVSessionManager.m */; };
+		8645FBB32174409A0080D74A /* ScanCodeManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8645FBB02174409A0080D74A /* ScanCodeManager.m */; };
+		8645FBB42174409A0080D74A /* SPQRCodeAndBarCode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8645FBB12174409A0080D74A /* SPQRCodeAndBarCode.m */; };
+		8645FBB82174425D0080D74A /* PreviewView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8645FBB62174425D0080D74A /* PreviewView.m */; };
+		8645FBBB217443170080D74A /* UIView+PFL.m in Sources */ = {isa = PBXBuildFile; fileRef = 8645FBBA217443170080D74A /* UIView+PFL.m */; };
+		8645FBC0217454590080D74A /* SWScanView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8645FBBF217454590080D74A /* SWScanView.m */; };
+		8645FBC2217489160080D74A /* scancode.caf in Resources */ = {isa = PBXBuildFile; fileRef = 8645FBC1217489160080D74A /* scancode.caf */; };
 		C2ED39CD1B228B7E002119D5 /* ScanCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2ED39CC1B228B7E002119D5 /* ScanCollectionViewCell.swift */; };
 		C2EFBE5E1B23523B00D654D9 /* libzbar.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C2EFBE5D1B23523B00D654D9 /* libzbar.a */; };
 /* End PBXBuildFile section */
@@ -194,6 +201,22 @@
 		8645FBA5217395DC0080D74A /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		8645FBA6217395DC0080D74A /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
 		8645FBA7217395DC0080D74A /* README.mdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.mdown; sourceTree = "<group>"; };
+		8645FBAC2174409A0080D74A /* SWAVSessionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SWAVSessionManager.m; sourceTree = "<group>"; };
+		8645FBAD2174409A0080D74A /* ScanCodeManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScanCodeManager.h; sourceTree = "<group>"; };
+		8645FBAE2174409A0080D74A /* SPQRCodeAndBarCode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPQRCodeAndBarCode.h; sourceTree = "<group>"; };
+		8645FBAF2174409A0080D74A /* SWAVSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SWAVSessionManager.h; sourceTree = "<group>"; };
+		8645FBB02174409A0080D74A /* ScanCodeManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScanCodeManager.m; sourceTree = "<group>"; };
+		8645FBB12174409A0080D74A /* SPQRCodeAndBarCode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SPQRCodeAndBarCode.m; sourceTree = "<group>"; };
+		8645FBB5217441660080D74A /* Scanner.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Scanner.pch; sourceTree = "<group>"; };
+		8645FBB62174425D0080D74A /* PreviewView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreviewView.m; sourceTree = "<group>"; };
+		8645FBB72174425D0080D74A /* PreviewView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreviewView.h; sourceTree = "<group>"; };
+		8645FBB9217443170080D74A /* UIView+PFL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+PFL.h"; sourceTree = "<group>"; };
+		8645FBBA217443170080D74A /* UIView+PFL.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+PFL.m"; sourceTree = "<group>"; };
+		8645FBBC217446540080D74A /* SWSystemConst.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SWSystemConst.h; sourceTree = "<group>"; };
+		8645FBBD217446BC0080D74A /* SWDispatchTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SWDispatchTool.h; sourceTree = "<group>"; };
+		8645FBBE217454590080D74A /* SWScanView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SWScanView.h; sourceTree = "<group>"; };
+		8645FBBF217454590080D74A /* SWScanView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SWScanView.m; sourceTree = "<group>"; };
+		8645FBC1217489160080D74A /* scancode.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = scancode.caf; sourceTree = "<group>"; };
 		C2ED39CC1B228B7E002119D5 /* ScanCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScanCollectionViewCell.swift; sourceTree = "<group>"; };
 		C2EFBE5D1B23523B00D654D9 /* libzbar.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libzbar.a; path = Headers/libzbar.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -354,6 +377,7 @@
 		83C48D7D1B033869000E7EBA /* Scanner */ = {
 			isa = PBXGroup;
 			children = (
+				8645FBAB2174409A0080D74A /* SWQR&BarCode */,
 				8645FBA3217395DC0080D74A /* MBProgressHUD */,
 				2CBD1CA11E2525BC00DE22AB /* IQKeyboardManager */,
 				83F656221B26E08300BD7DDA /* Scanner.entitlements */,
@@ -400,8 +424,10 @@
 			children = (
 				2CBD1CDB1E253AB000DE22AB /* express_list.plist */,
 				83C48DAA1B034303000E7EBA /* cover.png */,
+				8645FBC1217489160080D74A /* scancode.caf */,
 				83C48D7F1B033869000E7EBA /* Info.plist */,
 				2CBD1C9D1E25244C00DE22AB /* Bridge-Header.h */,
+				8645FBB5217441660080D74A /* Scanner.pch */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -498,6 +524,27 @@
 			path = MBProgressHUD;
 			sourceTree = "<group>";
 		};
+		8645FBAB2174409A0080D74A /* SWQR&BarCode */ = {
+			isa = PBXGroup;
+			children = (
+				8645FBAD2174409A0080D74A /* ScanCodeManager.h */,
+				8645FBB02174409A0080D74A /* ScanCodeManager.m */,
+				8645FBAF2174409A0080D74A /* SWAVSessionManager.h */,
+				8645FBAC2174409A0080D74A /* SWAVSessionManager.m */,
+				8645FBB72174425D0080D74A /* PreviewView.h */,
+				8645FBB62174425D0080D74A /* PreviewView.m */,
+				8645FBBD217446BC0080D74A /* SWDispatchTool.h */,
+				8645FBB9217443170080D74A /* UIView+PFL.h */,
+				8645FBBA217443170080D74A /* UIView+PFL.m */,
+				8645FBBE217454590080D74A /* SWScanView.h */,
+				8645FBBF217454590080D74A /* SWScanView.m */,
+				8645FBBC217446540080D74A /* SWSystemConst.h */,
+				8645FBAE2174409A0080D74A /* SPQRCodeAndBarCode.h */,
+				8645FBB12174409A0080D74A /* SPQRCodeAndBarCode.m */,
+			);
+			path = "SWQR&BarCode";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -553,6 +600,9 @@
 						LastSwiftMigration = 0810;
 						ProvisioningStyle = Manual;
 						SystemCapabilities = {
+							com.apple.DataProtection = {
+								enabled = 0;
+							};
 							com.apple.Push = {
 								enabled = 1;
 							};
@@ -598,6 +648,7 @@
 				8645FBA9217395DC0080D74A /* LICENSE in Resources */,
 				83FD9E091B21830000AFEED4 /* zbar-back.png in Resources */,
 				83FD9E0C1B21830000AFEED4 /* zbar-samples.png in Resources */,
+				8645FBC2217489160080D74A /* scancode.caf in Resources */,
 				83C48D8B1B033869000E7EBA /* LaunchScreen.xib in Resources */,
 				83C48D881B033869000E7EBA /* Images.xcassets in Resources */,
 				8645FBA221738C850080D74A /* ExpressTraceTableViewCell.xib in Resources */,
@@ -626,6 +677,7 @@
 			files = (
 				2CBD1CC81E2525BC00DE22AB /* IQUITextFieldView+Additions.m in Sources */,
 				2CBD1CD81E25260A00DE22AB /* Misc.swift in Sources */,
+				8645FBBB217443170080D74A /* UIView+PFL.m in Sources */,
 				2CBD1CA01E25244C00DE22AB /* PFLAnimationable.swift in Sources */,
 				C2ED39CD1B228B7E002119D5 /* ScanCollectionViewCell.swift in Sources */,
 				83FA5F291B27C8FD00C9FB0D /* ScanDocument.swift in Sources */,
@@ -644,7 +696,9 @@
 				2CBD1CD91E25260A00DE22AB /* SoundPlayer.swift in Sources */,
 				2CBD1C9F1E25244C00DE22AB /* PFLSwiftAlertView.swift in Sources */,
 				2CBD1CCE1E2525BC00DE22AB /* IQTextView.m in Sources */,
+				8645FBC0217454590080D74A /* SWScanView.m in Sources */,
 				2CBD1CCD1E2525BC00DE22AB /* IQKeyboardReturnKeyHandler.m in Sources */,
+				8645FBB42174409A0080D74A /* SPQRCodeAndBarCode.m in Sources */,
 				2C4150031E2388F200005B24 /* ExpressViewController.swift in Sources */,
 				83C48DA11B033899000E7EBA /* CaptureVideoLayer.swift in Sources */,
 				2CBD1CD21E2525BC00DE22AB /* IQToolbar.m in Sources */,
@@ -652,12 +706,15 @@
 				83F1C50A1B1EFCBC005CE3BD /* ScanItems.xcdatamodeld in Sources */,
 				83F1C5071B1EFBEB005CE3BD /* PersistentStack.m in Sources */,
 				2CBD1CCB1E2525BC00DE22AB /* IQUIWindow+Hierarchy.m in Sources */,
+				8645FBB22174409A0080D74A /* SWAVSessionManager.m in Sources */,
 				2CBD1CD11E2525BC00DE22AB /* IQTitleBarButtonItem.m in Sources */,
 				2CBD1CD31E2525BC00DE22AB /* IQUIView+IQKeyboardToolbar.m in Sources */,
+				8645FBB32174409A0080D74A /* ScanCodeManager.m in Sources */,
 				83F1C5041B1EFBDC005CE3BD /* Store.m in Sources */,
 				8387F75A1B034A9300443B5B /* WebViewController.swift in Sources */,
 				2CBD1CC71E2525BC00DE22AB /* IQUIScrollView+Additions.m in Sources */,
 				83FD9DE51B21310F00AFEED4 /* ScanDetailCollectionViewController.swift in Sources */,
+				8645FBB82174425D0080D74A /* PreviewView.m in Sources */,
 				8645FB9E217384D20080D74A /* ExpressTracesTableViewController.swift in Sources */,
 				83FD9DE91B213E5A00AFEED4 /* ScanTableViewCell.swift in Sources */,
 				2CBD1C9E1E25244C00DE22AB /* PFLAlertable.swift in Sources */,
@@ -803,6 +860,8 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 				);
+				GCC_INCREASE_PRECOMPILED_HEADER_SHARING = NO;
+				GCC_PREFIX_HEADER = "${PROJECT}/Scanner.pch";
 				INFOPLIST_FILE = Scanner/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -838,6 +897,8 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 				);
+				GCC_INCREASE_PRECOMPILED_HEADER_SHARING = NO;
+				GCC_PREFIX_HEADER = "${PROJECT}/Scanner.pch";
 				INFOPLIST_FILE = Scanner/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
