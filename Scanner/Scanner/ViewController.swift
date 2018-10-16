@@ -158,61 +158,8 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     
     
     func createSystemSCaner() {
-//        let captureDevice = AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo)
-//        var captureInput: AnyObject?
-//        do {
-//            captureInput = try AVCaptureDeviceInput(device: captureDevice)
-//        } catch let error as NSError {
-//            print(error.localizedDescription)
-//            captureInput = nil
-//        }
-//
-//
-//        captureSession = AVCaptureSession()
-//        if captureSession!.canSetSessionPreset(AVCaptureSessionPreset1920x1080)
-//        {
-//            captureSession?.sessionPreset = AVCaptureSessionPreset1920x1080
-//        }else if captureSession!.canSetSessionPreset(AVCaptureSessionPreset640x480)
-//        {
-//            captureSession?.sessionPreset = AVCaptureSessionPreset640x480
-//        }
-//
-//        if captureSession!.canAddInput(captureInput as! AVCaptureInput)
-//        {
-//            captureSession?.addInput(captureInput! as! AVCaptureInput)
-//        }
-//
-//
-//        let captureMetadataOutput = AVCaptureMetadataOutput()
-//
-//        if captureSession!.canAddOutput(captureMetadataOutput)
-//        {
-//            captureSession?.addOutput(captureMetadataOutput)
-//        }
-        
-        
-//        captureMetadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
-//        captureMetadataOutput.metadataObjectTypes = [AVMetadataObjectTypeQRCode,AVMetadataObjectTypeEAN13Code,AVMetadataObjectTypeEAN8Code,AVMetadataObjectTypeCode128Code]
-        
-        
-//        videoPreviewLayer = CaptureVideoLayer(session: captureSession)
-//        videoPreviewLayer?.videoGravity = AVLayerVideoGravityResizeAspectFill
-//        videoPreviewLayer?.frame = view.bounds
-//        videoPreviewLayer?.backgroundColor = UIColor.white.cgColor
-////        view.layer.addSublayer(videoPreviewLayer!)
-//        
-//        
-//        
-//        qrCodeFrameView = UIView(frame: CGRect(x: kLineMinX, y: kLineMinY, width: kReaderWidth, height: kReaderWidth))
-//        qrCodeFrameView?.layer.borderColor = UIColor.white.cgColor
-//        qrCodeFrameView?.layer.borderWidth = 2.0
-//        qrCodeFrameView?.addSubview(scanLabel!)
-//        view.addSubview(qrCodeFrameView!)
-        
-//        captureMetadataOutput.rectOfInterest = CGRect(x: kLineMinY / kDeviceHeigth, y: kLineMinX / kDeviceWidth, width: kReaderWidth/kDeviceHeigth, height: kReaderWidth/kDeviceWidth)
-        
-
         self.scanView = SWScanView(frame: self.view.bounds)
+        self.scanView.previewRectOfInterest = CGRect(x: kLineMinX, y: kLineMinY, width: kReaderHeight, height: kReaderHeight)
         self.scanView.torchPressedAction = { btn in
             guard let btn = btn else {return}
         }
@@ -232,9 +179,6 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         //        animationView(scanLabel!)
         configureSquare()
         self.scanView.bringSubview(toFront:self.scanView.torchView)
-
-
-
     }
     
     @objc private func openAlbum() {
@@ -467,6 +411,7 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
 //        captureSession!.stopRunning()
 //        isStopScan = true
         scanner.stopRun()
+        self.scanView.stratAnimation()
         guard let button = view.viewWithTag(1000) as? UIButton else {return}
         button.isUserInteractionEnabled = true
         button.isSelected = false
@@ -480,6 +425,7 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         button.isUserInteractionEnabled = false
 //        captureSession?.startRunning()
         scanner.startRun()
+        self.scanView.stratAnimation()
         scanLabel?.isHidden = false
         messageLabel?.text = "我的快递"
         scanImageView.isHidden = true

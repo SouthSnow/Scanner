@@ -72,10 +72,12 @@
 
 - (void)layoutSubviews {
     [super layoutSubviews];
-    self.scanView.top = 80;
-    self.torchView.top = self.scanView.bottom + 15;
+    if (CGRectEqualToRect(CGRectZero, self.previewRectOfInterest)) {
+        self.scanView.top = 80;
+    }
+    self.torchView.centerY = self.scanView.centerY+20;
     self.tipView.top = self.torchView.bottom + 100;
-
+    
     self.scanView.size = self.scanImageView.size;
     self.scanView.centerX = self.width/2;
     self.scanLine.centerX = self.scanView.width/2;
@@ -89,10 +91,19 @@
     self.torchView.width = self.torchTipLabel.width;;
     self.torchTipLabel.centerX = self.torchView.width/2;
     self.torchBtn.centerX = self.torchTipLabel.centerX;
-    
 }
 
 #pragma mark getter setter
+
+- (void)setPreviewRectOfInterest:(CGRect)previewRectOfInterest {
+    _previewRectOfInterest = previewRectOfInterest;
+    self.scanImageView.frame = (CGRect){CGPointZero, previewRectOfInterest.size};
+    self.scanView.frame = previewRectOfInterest;
+    [self stopAnimation];
+    [self.scanLine removeFromSuperview];
+    self.scanLine = nil;
+    [self.scanView addSubview:self.scanLine];
+}
 
 - (UIControl *)scanView {
     if (_scanView == nil) {
@@ -109,6 +120,9 @@
         CGFloat size = MAX(MAX(_scanImageView.width,_scanImageView.height),217);
         size = MAX(CGRectGetWidth(UIScreen.mainScreen.bounds)-140, size);
         _scanImageView.size = CGSizeMake(size, size);
+        if (!CGRectEqualToRect(CGRectZero, self.previewRectOfInterest)) {
+            _scanImageView.frame = self.previewRectOfInterest;
+        }
         _scanImageView.backgroundColor = UIColor.clearColor;
     }
     return _scanImageView;
@@ -210,10 +224,34 @@
     }
 }
 
+- (void)stratAnimation {
+    self.scanLine.hidden = NO;
+    [self.scanLine.layer addAnimation:[self moveAnimation] forKey:@"move"];
+}
+
+- (void)stopAnimation {
+    self.scanLine.hidden = YES;
+    [self.scanLine.layer removeAllAnimations];
+}
+
 #pragma mark closeTorchAction
 - (void)closeTorchAction {
     self.torchBtn.selected = NO;
     self.torchView.hidden = YES;
+}
+
+-(CABasicAnimation*)moveAnimation {
+    CGPoint starPoint = CGPointMake(_scanLine .center.x  , _scanLine.center.y);
+    CGPoint endPoint = CGPointMake(_scanLine.center.x, _scanImageView.bounds.size.height-5);
+    CABasicAnimation*translation = [CABasicAnimation animationWithKeyPath:@"position"];
+    translation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+    translation.fromValue = [NSValue valueWithCGPoint:starPoint];
+    translation.toValue = [NSValue valueWithCGPoint:endPoint];
+    translation.duration = 1.5;
+    translation.repeatCount = CGFLOAT_MAX;
+    translation.autoreverses = NO;
+    translation.timeOffset = 0;
+    return translation;
 }
 
 

@@ -9,6 +9,8 @@
 #import <UIKit/UIKit.h>
 
 @interface SWScanView : UIControl
+
+@property (nonatomic, assign) CGRect previewRectOfInterest;
 /** scanView */
 @property (nonatomic, strong, readonly) UIControl *scanView;
 /** 扫描框 */
@@ -33,4 +35,7 @@
 
 @property (nonatomic, copy) void (^torchPressedAction)(UIButton*btn);
 
+ #pragma mark start Animation
+- (void)stratAnimation;
+- (void)stopAnimation;
 @end
