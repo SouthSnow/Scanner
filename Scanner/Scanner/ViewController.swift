@@ -63,6 +63,11 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         }
     }
     
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.black
@@ -70,7 +75,7 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         self.navigationController?.navigationBar.barTintColor = UIColor.green//(red: 0.863, green: 0.243, blue: 0.051, alpha: 1.0)
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "扫描历史", style: UIBarButtonItemStyle.plain, target: self, action: #selector(ViewController.showDetail))
         self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "相册", style: UIBarButtonItemStyle.plain, target: self, action: #selector(openAlbum))
-        
+        NotificationCenter.default.addObserver(self, selector: #selector(startRuning), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
         createSystemSCaner()
         
 //        startRuning()
