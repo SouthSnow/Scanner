@@ -18,30 +18,35 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
     var window: UIWindow?
     var persistentStack: PersistentStack?
     var store: Store?
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
-        let nav = self.window?.rootViewController as! UINavigationController
-        let rootVC: ViewController = nav.topViewController as! ViewController
-//        persistentStack = PersistentStack(storeURL: storeURL().0, modelURL: storeURL().1)
-//        store = Store()
-//        store?.managedContext = persistentStack?.managedContext
-//        rootVC.managedObjectContext = persistentStack?.managedContext
-//        rootVC.fetchResultsController = store?.getFetchResultsControllers()
-        Fabric.with([Crashlytics()])
-//        rootVC.managedObjectContext = stack.managedContext//self.managedObjectContext
-//        rootVC.fetchResultsController = stack.fetchedResultsController//self.fetchResultsController
-        rootVC.stack = self.stack
-//        registerForiCloudNotifications()
-//        registerNotifications()
+        SWAVSessionManager.shareAVSession()?.createAVSession()
         
-//        JSPatch.start(withAppKey: "6e328bd8f686f709")
-//        JSPatch.sync()
+        self.window = UIWindow(frame: UIScreen.main.bounds)
+        self.window?.makeKeyAndVisible()
+        let homeVc = HomeViewController()
+        let nav = UINavigationController(rootViewController: homeVc)
+        self.window?.rootViewController = nav
+        
+        UINavigationBar.appearance().barTintColor = UIColor.green
+        UINavigationBar.appearance().shadowImage = UIImage()
         
         _ = initCloud()
         
         return true
     }
     
+    
+    private func gotoScanView() {
+        if !(UIApplication.topViewController() is ScanViewController) {
+            if let nav =  UIApplication.topViewController()?.navigationController {
+                nav.pushViewController(ScanViewController(), animated: true)
+            }
+            else {
+                UIApplication.topViewController()?.present(ScanViewController(), animated: true, completion: nil)
+            }
+        }
+    }
     
 
     lazy var stack: PersistentStack = {
@@ -82,7 +87,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(contextDidSavePrivateQueueContext), name: NSNotification.Name.NSManagedObjectContextDidSave, object: persistentStack?.managedContext)
     }
     
-    func contextDidSavePrivateQueueContext(_ notification: Notification)
+    @objc func contextDidSavePrivateQueueContext(_ notification: Notification)
     {
         persistentStack?.managedContext.perform({ () -> Void in
             
@@ -113,6 +118,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
         
         self.saveContext()
+    }
+    
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+//        let userDefaults = UserDefaults(suiteName: "group.com.pflnh.scanner")
+//        let weatherInfo = userDefaults?.object(forKey: "com.pflnh.scanner.expressInfo") as? NSDictionary
+        
+        if url.scheme == "iScanner" {
+//            if let city = weatherInfo?.object(forKey: "expressInfo") as? String {
+//                NotificationCenter.default.post(name: Notification.Name(rawValue: "kRefreshWeatherInfoNotification"), object: city)
+//            }
+            DispatchQueue.main.async {
+                self.gotoScanView()
+            }
+            return true
+        }
+        return false
     }
 
     
@@ -236,7 +257,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,UIAlertViewDelegate {
         notificationCenter.addObserver(self, selector: #selector(AppDelegate.persistentStoreDidImportUbiquitousContentChanges(_:)), name: NSNotification.Name.NSPersistentStoreDidImportUbiquitousContentChanges, object: persistentStoreCoordinator)
     }
     
-    func persistentStoreDidImportUbiquitousContentChanges(_ notification:Notification){
+    @objc func persistentStoreDidImportUbiquitousContentChanges(_ notification:Notification){
         let context = self.managedObjectContext!
         context.perform({
             context.mergeChanges(fromContextDidSave: notification)

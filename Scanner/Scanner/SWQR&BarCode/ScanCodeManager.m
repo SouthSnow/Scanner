@@ -179,13 +179,16 @@ static NSString * const kSoundKey = @"scancode.caf";
     dispatch_async(self.sampleBufferCallbackQueue,^{
         self.isFinish = NO;
         if (!self.captureSession) {
-            [self createAVSession2];
+            SWRunOnMainThreadDo(^{
+                [self createAVSession2];
+            });
         }
         else {
             if (!self.captureSession.isRunning) {
                 [self.captureSession startRunning];
             }
         }
+        NSLog(@"============startRun==%@===========",NSThread.currentThread);
     });
 }
 
@@ -195,6 +198,7 @@ static NSString * const kSoundKey = @"scancode.caf";
         if (self.captureSession.isRunning) {
             [self.captureSession stopRunning];
         }
+        NSLog(@"============stopRun==%@===========",NSThread.currentThread);
     });
 }
 
@@ -221,7 +225,8 @@ static NSString * const kSoundKey = @"scancode.caf";
     dispatch_async(self.sampleBufferCallbackQueue,^{
         if (!shareAVSession.captureSession.isRunning) {
             [shareAVSession.captureSession startRunning];
-            NSLog(@"startRunning...........");
+            NSLog(@"startRunning...........==%@===========",NSThread.currentThread);
+
         }
         SWRunOnMainThreadDo(^{
             self->_codeDataOutput.rectOfInterest = [layer metadataOutputRectOfInterestForRect:CGRectInset(self.rectOfInterest, -40, -40)];
@@ -480,6 +485,7 @@ static NSString * const kSoundKey = @"scancode.caf";
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
+    !self.chooseFromAblumCompletionHandler?:self.chooseFromAblumCompletionHandler(nil);
     [picker dismissViewControllerAnimated:YES completion:nil];
 }
 
