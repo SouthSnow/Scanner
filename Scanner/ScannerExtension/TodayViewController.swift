@@ -99,7 +99,7 @@ extension TodayViewController: UITableViewDelegate, UITableViewDataSource {
         } else {
             // Fallback on earlier versions
         }
-        preferredContentSize = CGSize(width: 0, height: (expressTraces.count+1)*70)
+        preferredContentSize = CGSize(width: 0, height: (expressTraces.count+1)*80)
         return expressTraces.count
     }
     
