@@ -23,7 +23,7 @@ class TodayViewController: UIViewController, NCWidgetProviding {
         self.activityView.stopAnimating()
         super.viewDidLoad()
         self.setupAppreance()
-        preferredContentSize = CGSize(width: 0, height: 400)
+        preferredContentSize = CGSize(width: 0, height: 200)
         if #available(iOSApplicationExtension 10.0, *) {
             self.extensionContext?.widgetLargestAvailableDisplayMode = .expanded
         } else {

@@ -163,11 +163,11 @@ class ScanDetailTableViewController: UITableViewController {
             self.navigationController?.pushViewController(detailVc, animated: true)
         }
         
-        todo:do {
-            let detailVc = ScanDetailViewController()
-            detailVc.content = scanItem.scanDetail
-            self.navigationController?.pushViewController(detailVc, animated: true)
-        }
+//        todo:do {
+//            let detailVc = ScanDetailViewController()
+//            detailVc.content = scanItem.scanDetail
+//            self.navigationController?.pushViewController(detailVc, animated: true)
+//        }
         
     }
 
