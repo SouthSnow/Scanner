@@ -76,7 +76,7 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource {
             }
             return 0
         }
-        preferredContentSize = CGSize(width: 0, height: (expressTraces.count+1)*80)
+        preferredContentSize = CGSize(width: 0, height: (expressTraces.count+2)*80)
         if self.preferredContentSizeHandler != nil {
             self.preferredContentSizeHandler!(self.preferredContentSize)
         }

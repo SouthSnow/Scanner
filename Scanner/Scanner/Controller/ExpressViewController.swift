@@ -137,7 +137,7 @@ class ExpressViewController: UIViewController, PFLAlertable {
     
     @objc fileprivate func queryExpress(btn: UIButton) {
         self.view.endEditing(true)
-        guard let _ = self.expressNoTextField.text else {
+        guard let text = self.expressNoTextField.text, text.length > 0 else {
             return
         }
         btn.isEnabled = false

@@ -23,7 +23,7 @@ class TodayViewController: UIViewController, NCWidgetProviding {
         self.activityView.stopAnimating()
         super.viewDidLoad()
         self.setupAppreance()
-        preferredContentSize = CGSize(width: 0, height: 200)
+        preferredContentSize = CGSize(width: 0, height: 400)
         if #available(iOSApplicationExtension 10.0, *) {
             self.extensionContext?.widgetLargestAvailableDisplayMode = .expanded
         } else {
@@ -99,7 +99,7 @@ extension TodayViewController: UITableViewDelegate, UITableViewDataSource {
         } else {
             // Fallback on earlier versions
         }
-        preferredContentSize = CGSize(width: 0, height: (expressTraces.count+1)*80)
+        preferredContentSize = CGSize(width: 0, height: (expressTraces.count+2)*80)
         return expressTraces.count
     }
     
