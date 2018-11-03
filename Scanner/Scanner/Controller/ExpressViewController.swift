@@ -109,7 +109,7 @@ class ExpressViewController: UIViewController, PFLAlertable {
         self.view.addSubview(self.tableView)
         self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         if #available(iOS 10.3, *) {
-            SKStoreReviewController.requestReview()
+//          SKStoreReviewController.requestReview()
         } else {
             // Fallback on earlier versions
         }

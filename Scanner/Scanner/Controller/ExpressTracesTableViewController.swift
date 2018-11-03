@@ -26,7 +26,7 @@ class ExpressTracesTableViewController: UITableViewController {
         tableView = UITableView(frame: UIScreen.main.bounds, style: .grouped)
         self.tableView.register(UINib.init(nibName: "ExpressTraceTableViewCell", bundle: nil), forCellReuseIdentifier: reuseIdentifier)
         if #available(iOS 10.3, *) {
-            SKStoreReviewController.requestReview()
+//          SKStoreReviewController.requestReview()
         } else {
             // Fallback on earlier versions
         }

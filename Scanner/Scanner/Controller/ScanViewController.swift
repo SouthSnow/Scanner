@@ -83,7 +83,7 @@ class ScanViewController: UIViewController, AVCaptureMetadataOutputObjectsDelega
         createSystemSCaner()
         
         if #available(iOS 10.3, *) {
-            SKStoreReviewController.requestReview()
+//          SKStoreReviewController.requestReview()
         } else {
             // Fallback on earlier versions
         }

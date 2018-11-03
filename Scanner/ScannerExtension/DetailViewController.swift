@@ -30,6 +30,7 @@ class DetailViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         guard let text = UIPasteboard.general.string, text.count > 0, text.pureNumberString else {
+            self.textField.becomeFirstResponder()
             return
         }
         self.textField.text = UIPasteboard.general.string

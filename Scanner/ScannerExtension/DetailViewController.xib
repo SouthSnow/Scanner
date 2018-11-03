@@ -30,7 +30,7 @@
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="OVT-e1-3GG">
                             <rect key="frame" x="20" y="20" width="335" height="45"/>
                             <subviews>
-                                <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="请输入快递号" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="YBW-wQ-ag6">
+                                <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="输入或扫一扫快递单号" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="YBW-wQ-ag6">
                                     <rect key="frame" x="10" y="0.0" width="280" height="45"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="45" id="y4S-WH-bFI"/>
